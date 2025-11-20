@@ -1,0 +1,12 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+# Find libmosquitto dependency
+find_library(MOSQUITTO_LIBRARY mosquitto REQUIRED)
+find_path(MOSQUITTO_INCLUDE_DIR mosquitto.h REQUIRED)
+
+# Include the targets file
+include("${CMAKE_CURRENT_LIST_DIR}/StingerUtilsTargets.cmake")
+
+check_required_components(StingerUtils)
