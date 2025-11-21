@@ -3,25 +3,12 @@
 namespace stinger {
 namespace utils {
 
-MqttMessage::MqttMessage(const std::string& topic, 
-                         const std::string& payload,
-                         unsigned qos,
-                         bool retain,
+MqttMessage::MqttMessage(const std::string& topic, const std::string& payload, unsigned qos, bool retain,
                          const MqttProperties& props)
-    : topic(topic),
-      payload(payload),
-      qos(qos),
-      retain(retain),
-      properties(props)
-{}
+    : topic(topic), payload(payload), qos(qos), retain(retain), properties(props) {}
 
 MqttMessage::MqttMessage(const MqttMessage& other)
-    : topic(other.topic),
-      payload(other.payload),
-      qos(other.qos),
-      retain(other.retain),
-      properties(other.properties)
-{}
+    : topic(other.topic), payload(other.payload), qos(other.qos), retain(other.retain), properties(other.properties) {}
 
 MqttMessage MqttMessage::Signal(const std::string& topic, const std::string& payload) {
     return MqttMessage(topic, payload, 2, false, MqttProperties());
@@ -33,7 +20,9 @@ MqttMessage MqttMessage::PropertyValue(const std::string& topic, const std::stri
     return MqttMessage(topic, payload, 1, true, props);
 }
 
-MqttMessage MqttMessage::PropertyUpdateRequest(const std::string& topic, const std::string& payload, int propertyVersion, const std::vector<std::byte>& correlationId, const std::string& responseTopic) {
+MqttMessage MqttMessage::PropertyUpdateRequest(const std::string& topic, const std::string& payload,
+                                               int propertyVersion, const std::vector<std::byte>& correlationId,
+                                               const std::string& responseTopic) {
     MqttProperties props;
     props.propertyVersion = propertyVersion;
     props.correlationId = correlationId;
@@ -41,7 +30,9 @@ MqttMessage MqttMessage::PropertyUpdateRequest(const std::string& topic, const s
     return MqttMessage(topic, payload, 1, false, props);
 }
 
-MqttMessage MqttMessage::PropertyUpdateResponse(const std::string& topic, const std::string& payload, int propertyVersion, const std::vector<std::byte>& correlationId, int returnCode, const std::string& debugMessage) {
+MqttMessage MqttMessage::PropertyUpdateResponse(const std::string& topic, const std::string& payload,
+                                                int propertyVersion, const std::vector<std::byte>& correlationId,
+                                                int returnCode, const std::string& debugMessage) {
     MqttProperties props;
     props.propertyVersion = propertyVersion;
     props.correlationId = correlationId;
@@ -50,14 +41,17 @@ MqttMessage MqttMessage::PropertyUpdateResponse(const std::string& topic, const 
     return MqttMessage(topic, payload, 1, false, props);
 }
 
-MqttMessage MqttMessage::MethodRequest(const std::string& topic, const std::string& payload, const std::vector<std::byte>& correlationId, const std::string& responseTopic) {
+MqttMessage MqttMessage::MethodRequest(const std::string& topic, const std::string& payload,
+                                       const std::vector<std::byte>& correlationId, const std::string& responseTopic) {
     MqttProperties props;
     props.correlationId = correlationId;
     props.responseTopic = responseTopic;
     return MqttMessage(topic, payload, 2, false, props);
 }
 
-MqttMessage MqttMessage::MethodResponse(const std::string& topic, const std::string& payload, const std::vector<std::byte>& correlationId, int returnCode, const std::string& debugMessage) {
+MqttMessage MqttMessage::MethodResponse(const std::string& topic, const std::string& payload,
+                                        const std::vector<std::byte>& correlationId, int returnCode,
+                                        const std::string& debugMessage) {
     MqttProperties props;
     props.correlationId = correlationId;
     props.returnCode = returnCode;

@@ -1,10 +1,10 @@
-#include <iostream>
-#include <thread>
-#include <chrono>
-#include <memory>
-#include <syslog.h>
 #include "stinger/utils/mqttbrokerconnection.hpp"
 #include "stinger/utils/mqttmessage.hpp"
+#include <chrono>
+#include <iostream>
+#include <memory>
+#include <syslog.h>
+#include <thread>
 
 using namespace stinger::utils;
 
@@ -14,29 +14,24 @@ int main() {
     auto mqtt = std::make_unique<MqttBrokerConnection>("localhost", 1883, "example_client");
 
     // Set up logging (optional)
-    mqtt->SetLogFunction([](int level, const char* message) {
-        std::cout << "[MQTT Log] " << message << std::endl;
-    });
+    mqtt->SetLogFunction([](int level, const char* message) { std::cout << "[MQTT Log] " << message << std::endl; });
     mqtt->SetLogLevel(LOG_DEBUG);
 
     // Add a message callback to handle received messages
-    auto callbackHandle = mqtt->AddMessageCallback(
-        [](const MqttMessage& msg) {
-            std::cout << "Received message on topic: " << msg.topic << std::endl;
-            std::cout << "Payload: " << msg.payload << std::endl;
-            
-            // Check if there's a correlation ID
-            if (msg.properties.correlationId) {
-                std::cout << "Correlation ID present (" 
-                          << msg.properties.correlationId->size() << " bytes)" << std::endl;
-            }
-            
-            // Check if there's a response topic
-            if (msg.properties.responseTopic) {
-                std::cout << "Response Topic: " << *msg.properties.responseTopic << std::endl;
-            }
+    auto callbackHandle = mqtt->AddMessageCallback([](const MqttMessage& msg) {
+        std::cout << "Received message on topic: " << msg.topic << std::endl;
+        std::cout << "Payload: " << msg.payload << std::endl;
+
+        // Check if there's a correlation ID
+        if (msg.properties.correlationId) {
+            std::cout << "Correlation ID present (" << msg.properties.correlationId->size() << " bytes)" << std::endl;
         }
-    );
+
+        // Check if there's a response topic
+        if (msg.properties.responseTopic) {
+            std::cout << "Response Topic: " << *msg.properties.responseTopic << std::endl;
+        }
+    });
 
     // Subscribe to the topic "hello/world" with QoS 1
     int subscriptionId = mqtt->Subscribe("hello/world", 1);
@@ -51,15 +46,15 @@ int main() {
     msg.payload = "Hello from example_usage!";
     msg.qos = 1;
     msg.retain = false;
-    
+
     // Optionally set properties
     msg.properties.contentType = "text/plain";
-    
+
     // Publish the message and get a future
     auto publishFuture = mqtt->Publish(msg);
-    
+
     std::cout << "Publishing message to hello/publish..." << std::endl;
-    
+
     // Wait for publish confirmation
     if (publishFuture.wait_for(std::chrono::seconds(5)) == std::future_status::ready) {
         if (publishFuture.get()) {
@@ -76,7 +71,7 @@ int main() {
     // Clean up: remove callback and unsubscribe
     mqtt->RemoveMessageCallback(callbackHandle);
     mqtt->Unsubscribe("hello/world");
-    
+
     std::cout << "Exiting..." << std::endl;
     return 0;
 }

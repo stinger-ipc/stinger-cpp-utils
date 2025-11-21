@@ -11,7 +11,7 @@ namespace utils {
  * @brief Container and JSON utility functions
  */
 
-typedef std::function<void(int, const char *)> LogFunctionType;
+typedef std::function<void(int, const char*)> LogFunctionType;
 typedef int CallbackHandleType;
 
 class IConnection {
@@ -46,7 +46,7 @@ public:
 
     virtual std::string GetOnlineTopic() const = 0;
 
-    virtual void Log(int level, const char *fmt, ...) const = 0;
+    virtual void Log(int level, const char* fmt, ...) const = 0;
 };
 
 } // namespace utils

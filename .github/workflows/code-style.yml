@@ -1,0 +1,50 @@
+name: Code Style Check
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  clang-format:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install clang-format
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-format
+    
+    - name: Check code formatting
+      run: |
+        # Find all C++ files and check if they need formatting
+        FILES=$(find include src tests examples -name '*.cpp' -o -name '*.hpp')
+        
+        # Create a flag file to track if any files need formatting
+        NEEDS_FORMAT=0
+        
+        for file in $FILES; do
+          # Check if file would be modified by clang-format
+          if ! diff -u "$file" <(clang-format "$file") > /dev/null 2>&1; then
+            echo "❌ $file needs formatting"
+            echo "Diff:"
+            diff -u "$file" <(clang-format "$file") || true
+            NEEDS_FORMAT=1
+          else
+            echo "✅ $file is properly formatted"
+          fi
+        done
+        
+        if [ $NEEDS_FORMAT -eq 1 ]; then
+          echo ""
+          echo "Some files need formatting. Please run:"
+          echo "  find include src tests examples -name '*.cpp' -o -name '*.hpp' | xargs clang-format -i"
+          echo "  git add -u"
+          echo "  git commit --amend --no-edit"
+          exit 1
+        fi
+        
+        echo "All files are properly formatted! ✨"

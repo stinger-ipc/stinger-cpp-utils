@@ -1,7 +1,7 @@
 #pragma once
 
-#include <string>
 #include "stinger/utils/mqttproperties.hpp"
+#include <string>
 
 namespace stinger {
 namespace utils {
@@ -16,10 +16,7 @@ struct MqttMessage {
     bool retain;
     MqttProperties properties;
 
-    MqttMessage(const std::string& topic, 
-                const std::string& payload,
-                unsigned qos = 0,
-                bool retain = false,
+    MqttMessage(const std::string& topic, const std::string& payload, unsigned qos = 0, bool retain = false,
                 const MqttProperties& props = MqttProperties());
 
     MqttMessage(const MqttMessage& other);
@@ -28,15 +25,20 @@ struct MqttMessage {
 
     static MqttMessage PropertyValue(const std::string& topic, const std::string& payload, int propertyVersion);
 
-    static MqttMessage PropertyUpdateRequest(const std::string& topic, const std::string& payload, int propertyVersion, const std::vector<std::byte>& correlationId, const std::string& responseTopic);
+    static MqttMessage PropertyUpdateRequest(const std::string& topic, const std::string& payload, int propertyVersion,
+                                             const std::vector<std::byte>& correlationId,
+                                             const std::string& responseTopic);
 
-    static MqttMessage PropertyUpdateResponse(const std::string& topic, const std::string& payload, int propertyVersion, const std::vector<std::byte>& correlationId, int returnCode, const std::string& debugMessage);
+    static MqttMessage PropertyUpdateResponse(const std::string& topic, const std::string& payload, int propertyVersion,
+                                              const std::vector<std::byte>& correlationId, int returnCode,
+                                              const std::string& debugMessage);
 
-    static MqttMessage MethodRequest(const std::string& topic, const std::string& payload, const std::vector<std::byte>& correlationId, const std::string& responseTopic);
+    static MqttMessage MethodRequest(const std::string& topic, const std::string& payload,
+                                     const std::vector<std::byte>& correlationId, const std::string& responseTopic);
 
-    static MqttMessage MethodResponse(const std::string& topic, const std::string& payload, const std::vector<std::byte>& correlationId, int returnCode, const std::string& debugMessage);
-
-    
+    static MqttMessage MethodResponse(const std::string& topic, const std::string& payload,
+                                      const std::vector<std::byte>& correlationId, int returnCode,
+                                      const std::string& debugMessage);
 };
 
 } // namespace utils
