@@ -1,0 +1,120 @@
+#pragma once
+
+#include "stinger/utils/iconnection.hpp"
+#include "stinger/utils/mqttmessage.hpp"
+#include <mosquitto.h>
+
+#include <queue>
+#include <future>
+#include <string>
+#include <vector>
+#include <map>
+#include <mutex>
+
+namespace stinger {
+namespace utils {
+
+/**
+ * @brief An Mqtt Connection, implementing IConnection.
+ */
+class MqttBrokerConnection : public IConnection {
+
+public:
+    /*! Constructor for a MqttBrokerConnection.
+     * \param hostname IP address or hostname of the MQTT broker server.
+     * \param port Port where the MQTT broker is running (often 1883).
+     */
+    MqttBrokerConnection(const std::string& host, int port, const std::string& clientId);
+
+    virtual ~MqttBrokerConnection();
+
+    /*! Publish a message to the MQTT broker.
+     * \param message The MQTT message to publish.
+     * \return A future which is resolved to true when the message has been published to the MQTT broker.
+     */
+    virtual std::future<bool> Publish(const MqttMessage& message);
+
+
+    /*! Subscribe to a topic.
+     * \param topic the subscription topic.
+     * \param qos an MQTT quality of service value between 0 and 2 inclusive.
+     * \return the MQTT subscription ID.
+     */
+    virtual int Subscribe(const std::string& topic, int qos);
+
+    virtual void Unsubscribe(const std::string& topic);
+
+    /*! Add a function that is called on the receipt of a message.
+     * Many callbacks can be added, and each will be called in the order in which the callbacks were added.
+     * \param cb the callback function.
+     */
+    virtual CallbackHandleType AddMessageCallback(const std::function<void(
+            const MqttMessage& 
+        )>& cb);
+
+    virtual void RemoveMessageCallback(CallbackHandleType handle);
+
+    /*! Determines if a topic string matches a subscription topic.
+     * \param topic a topic to match against a subscription.
+     * \param subscr the subscription topic string to match against.
+     * \return true if it is a match.
+     */
+    virtual bool TopicMatchesSubscription(const std::string& topic, const std::string& subscr) const;
+
+    virtual std::string GetClientId() const;
+
+    virtual std::string GetOnlineTopic() const;
+
+    virtual void SetLogFunction(const LogFunctionType& logFunc);
+    virtual void SetLogLevel(int level);
+    virtual void Log(int level, const char *fmt, ...) const;
+
+protected:
+    /*! Establishes the connection to the broker.
+     */
+    virtual void Connect();
+
+private:
+    // Represents an MQTT subscription, so that it can be queued before connection.
+    struct MqttSubscription
+    {
+        MqttSubscription(const std::string& topic, int qos, int subscriptionId) : topic(topic), qos(qos), subscriptionId(subscriptionId) {}
+        ~MqttSubscription() = default;
+        std::string topic;
+        int qos;
+        int subscriptionId;
+    };
+
+    struct PendingPublish
+    {
+        PendingPublish(MqttMessage msg) : message(std::move(msg)), pSentPromise(std::make_shared<std::promise<bool>>()) {}
+        ~PendingPublish() = default;
+        MqttMessage message;
+        std::shared_ptr<std::promise<bool>> pSentPromise;
+        std::future<bool> GetFuture() { return pSentPromise->get_future(); }
+        
+    };
+
+    mosquitto *_mosq;
+    std::string _host;
+    int _port;
+    std::string _clientId;
+    int _nextSubscriptionId = 1;
+    std::queue<MqttSubscription> _subscriptions;
+    std::mutex _mutex;
+    CallbackHandleType _nextCallbackHandle = 1;
+    std::map<CallbackHandleType, std::function<void(
+            const MqttMessage&
+    )>> _messageCallbacks;
+    std::queue<PendingPublish> _msgQueue;
+    std::map<int, std::shared_ptr<std::promise<bool>>> _sendMessages;
+
+    // Track subscription reference counts: topic -> (count, subscriptionId)
+    std::map<std::string, std::pair<int, int>> _subscriptionRefCounts;
+    
+    LogFunctionType _logger;
+    int _logLevel = 0;
+};
+
+} // namespace utils
+} // namespace stinger

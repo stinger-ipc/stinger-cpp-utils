@@ -1,7 +1,8 @@
 
 #pragma once
 #include <future>
-#include "stinger/utils/mqttproperties.hpp"
+
+#include "stinger/utils/mqttmessage.hpp"
 
 namespace stinger {
 namespace utils {
@@ -15,13 +16,15 @@ typedef int CallbackHandleType;
 
 class IConnection {
 public:
-    /*! Publish to a topic.
+    /*! Publish a message.
      * Implementations should queue up messages when not connected.
+     * A future is returned which resolves when the message is received by the broker, depending on QoS.
      */
-    virtual std::future<bool> Publish(const std::string& topic, const std::string& payload, unsigned qos, bool retain, const MqttProperties& mqttProps) = 0;
+    virtual std::future<bool> Publish(const MqttMessage& mqttMsg) = 0;
 
     /*! Subscribe to a topic.
      * Implementation should queue up subscriptions when not connected.
+     * Returns a subscription identifier.
      */
     virtual int Subscribe(const std::string& topic, int qos) = 0;
 
@@ -30,11 +33,7 @@ public:
     /*! Provide a callback to be called on an incoming message.
      * Implementation should accept this at any time, even when not connected.
      */
-    virtual CallbackHandleType AddMessageCallback(const std::function<void
-            (const std::string&, 
-            const std::string&, 
-            const MqttProperties&
-        )>& cb) = 0;
+    virtual CallbackHandleType AddMessageCallback(const std::function<void(const MqttMessage&)>& cb) = 0;
 
     virtual void RemoveMessageCallback(CallbackHandleType handle) = 0;
 
@@ -46,10 +45,6 @@ public:
     virtual std::string GetClientId() const = 0;
 
     virtual std::string GetOnlineTopic() const = 0;
-
-    virtual void SetLogFunction(const LogFunctionType& logFunc) = 0;
-
-    virtual void SetLogLevel(int level) = 0;
 
     virtual void Log(int level, const char *fmt, ...) const = 0;
 };

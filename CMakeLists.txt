@@ -17,13 +17,15 @@ find_path(MOSQUITTO_INCLUDE_DIR mosquitto.h REQUIRED)
 
 # Library sources
 set(STINGER_UTILS_SOURCES
-    src/connection.cpp
+    src/mqttbrokerconnection.cpp
 )
 
 # Library headers
 set(STINGER_UTILS_HEADERS
     include/stinger/utils/iconnection.hpp
-    include/stinger/utils/connection.hpp
+    include/stinger/utils/mqttbrokerconnection.hpp
+    include/stinger/utils/mqttmessage.hpp
+    include/stinger/utils/mqttproperties.hpp
 )
 
 # Create library
