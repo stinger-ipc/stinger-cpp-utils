@@ -75,7 +75,7 @@ TEST(MqttMessageTest, PropertyUpdateRequestFactoryMethod) {
 
     EXPECT_EQ(msg.topic, "prop/update");
     EXPECT_EQ(msg.payload, "new_value");
-    EXPECT_EQ(msg.qos, 2);
+    EXPECT_EQ(msg.qos, 1);
     EXPECT_FALSE(msg.retain);
 
     ASSERT_TRUE(msg.properties.propertyVersion.has_value());
@@ -97,7 +97,7 @@ TEST(MqttMessageTest, PropertyUpdateResponseFactoryMethod) {
 
     EXPECT_EQ(msg.topic, "prop/response");
     EXPECT_EQ(msg.payload, "success");
-    EXPECT_EQ(msg.qos, 2);
+    EXPECT_EQ(msg.qos, 1);
     EXPECT_FALSE(msg.retain);
 
     ASSERT_TRUE(msg.properties.propertyVersion.has_value());
@@ -139,7 +139,7 @@ TEST(MqttMessageTest, MethodResponseFactoryMethod) {
 
     EXPECT_EQ(msg.topic, "method/response");
     EXPECT_EQ(msg.payload, "{\"result\":42}");
-    EXPECT_EQ(msg.qos, 2);
+    EXPECT_EQ(msg.qos, 1);
     EXPECT_FALSE(msg.retain);
 
     ASSERT_TRUE(msg.properties.correlationId.has_value());

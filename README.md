@@ -42,11 +42,17 @@ cmake --build .
 
 - `STINGER_UTILS_BUILD_TESTS` - Build tests (default: ON)
 - `STINGER_UTILS_BUILD_EXAMPLES` - Build examples (default: ON)
+- `STINGER_UTILS_BUILD_MOCK` - Build mock connection for testing (default: OFF)
 - `BUILD_SHARED_LIBS` - Build shared library (default: OFF)
 
 Example with custom options:
 ```bash
 cmake -DSTINGER_UTILS_BUILD_TESTS=OFF -DBUILD_SHARED_LIBS=ON ..
+```
+
+To build with mock connection support (useful for unit testing):
+```bash
+cmake -DSTINGER_UTILS_BUILD_MOCK=ON ..
 ```
 
 ## Running Tests

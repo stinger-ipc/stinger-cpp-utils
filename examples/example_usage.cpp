@@ -41,11 +41,7 @@ int main() {
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
     // Create and publish a message to "hello/publish"
-    MqttMessage msg;
-    msg.topic = "hello/publish";
-    msg.payload = "Hello from example_usage!";
-    msg.qos = 1;
-    msg.retain = false;
+    auto msg = MqttMessage::Signal("hello/publish", "Hello from example_usage!");
 
     // Optionally set properties
     msg.properties.contentType = "text/plain";

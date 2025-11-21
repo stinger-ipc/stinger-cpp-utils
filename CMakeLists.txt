@@ -9,6 +9,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Options
 option(STINGER_UTILS_BUILD_TESTS "Build tests" ON)
 option(STINGER_UTILS_BUILD_EXAMPLES "Build examples" ON)
+option(STINGER_UTILS_BUILD_MOCK "Build mock connection for testing" OFF)
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 
 # Find libmosquitto
@@ -28,6 +29,13 @@ set(STINGER_UTILS_HEADERS
     include/stinger/utils/mqttmessage.hpp
     include/stinger/utils/mqttproperties.hpp
 )
+
+# Add mock connection if enabled
+if(STINGER_UTILS_BUILD_MOCK)
+    list(APPEND STINGER_UTILS_SOURCES src/mockconnection.cpp)
+    list(APPEND STINGER_UTILS_HEADERS include/stinger/utils/mockconnection.hpp)
+    message(STATUS "Building with MockConnection support")
+endif()
 
 # Create library
 add_library(stinger_utils ${STINGER_UTILS_SOURCES} ${STINGER_UTILS_HEADERS})

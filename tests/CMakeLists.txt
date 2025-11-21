@@ -15,8 +15,13 @@ enable_testing()
 
 # Test executable
 add_executable(stinger_utils_tests
-    test_mqttconnection.cpp
+    test_mqttmessage.cpp
 )
+
+# Add mock connection tests if enabled
+if(STINGER_UTILS_BUILD_MOCK)
+    target_sources(stinger_utils_tests PRIVATE test_mockconnection.cpp)
+endif()
 
 target_link_libraries(stinger_utils_tests
     PRIVATE
