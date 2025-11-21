@@ -89,14 +89,26 @@ target_link_libraries(my_app PRIVATE Stinger::Utils)
 Example code:
 
 ```cpp
-#include <stinger/utils/iconnection.hpp>
-#include <stinger/utils/mqttconnection.hpp>
+#include <stinger/utils/mqttbrokerconnection.hpp>
+#include <stinger/utils/mqttmessage.hpp>
 
 using namespace stinger::utils;
 
 int main() {
-    // MQTT connection utilities using libmosquitto
-    // Example usage would go here
+    // Create MQTT connection
+    auto mqtt = std::make_unique<MqttBrokerConnection>("localhost", 1883, "my_client");
+    
+    // Subscribe to a topic
+    mqtt->Subscribe("sensor/temperature", 1);
+    
+    // Add message callback
+    mqtt->AddMessageCallback([](const MqttMessage& msg) {
+        std::cout << "Topic: " << msg.topic << ", Payload: " << msg.payload << std::endl;
+    });
+    
+    // Publish a signal message
+    auto msg = MqttMessage::Signal("sensor/temperature", "22.5");
+    mqtt->Publish(msg);
     
     return 0;
 }

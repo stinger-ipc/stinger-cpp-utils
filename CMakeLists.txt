@@ -18,6 +18,7 @@ find_path(MOSQUITTO_INCLUDE_DIR mosquitto.h REQUIRED)
 # Library sources
 set(STINGER_UTILS_SOURCES
     src/mqttbrokerconnection.cpp
+    src/mqttmessage.cpp
 )
 
 # Library headers
