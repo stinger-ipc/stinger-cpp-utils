@@ -4,6 +4,11 @@ This provides common utilities needed for Stinger-generated C++ libraries.
 
 ## Features
 
+- **MQTT Broker Connection**: Easy-to-use wrapper around libmosquitto for MQTT communication
+- **Message Handling**: Type-safe MQTT message creation and callback management
+- **Mock Support**: Optional mock connection implementation for unit testing without a broker
+- **Header-only Option**: Can be built as either static, shared, or header-only library
+
 ## Requirements
 
 - C++17 or later
@@ -15,11 +20,13 @@ This provides common utilities needed for Stinger-generated C++ libraries.
 ### Installing libmosquitto
 
 On Ubuntu/Debian:
+
 ```bash
 sudo apt-get install libmosquitto-dev
 ```
 
 Or build from source:
+
 ```bash
 git clone https://github.com/eclipse/mosquitto.git
 cd mosquitto

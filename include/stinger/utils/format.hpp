@@ -1,18 +1,18 @@
 #pragma once
 
-#include <string>
 #include <map>
+#include <string>
 
 namespace stinger {
 namespace utils {
 
 /**
  * @brief Replaces {token} placeholders in a template string with values from a map
- * 
+ *
  * @param templateStr The template string containing {token} placeholders
  * @param values A map of token names to their replacement values
  * @return std::string The formatted string with all tokens replaced
- * 
+ *
  * @example
  * std::map<std::string, std::string> values = {
  *     {"name", "World"},

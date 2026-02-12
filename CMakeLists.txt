@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(StingerUtils VERSION 0.1.0 LANGUAGES CXX)
+project(StingerUtils VERSION 0.1.1 LANGUAGES CXX)
 
 # Set C++17 standard
 set(CMAKE_CXX_STANDARD 17)
@@ -20,6 +20,7 @@ find_path(MOSQUITTO_INCLUDE_DIR mosquitto.h REQUIRED)
 set(STINGER_UTILS_SOURCES
     src/mqttbrokerconnection.cpp
     src/mqttmessage.cpp
+    src/format.cpp
 )
 
 # Library headers
@@ -28,6 +29,7 @@ set(STINGER_UTILS_HEADERS
     include/stinger/utils/mqttbrokerconnection.hpp
     include/stinger/utils/mqttmessage.hpp
     include/stinger/utils/mqttproperties.hpp
+    include/stinger/utils/format.hpp
 )
 
 # Add mock connection if enabled
