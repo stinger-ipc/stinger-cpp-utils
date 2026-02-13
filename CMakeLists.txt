@@ -1,26 +1,25 @@
 cmake_minimum_required(VERSION 3.14)
 project(StingerUtils VERSION 0.1.1 LANGUAGES CXX)
 
-# Set C++17 standard
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+# Include standard installation directories
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
 
 # Options
 option(STINGER_UTILS_BUILD_TESTS "Build tests" ON)
 option(STINGER_UTILS_BUILD_EXAMPLES "Build examples" ON)
 option(STINGER_UTILS_BUILD_MOCK "Build mock connection for testing" OFF)
-option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 
-# Find libmosquitto
-find_library(MOSQUITTO_LIBRARY mosquitto REQUIRED)
-find_path(MOSQUITTO_INCLUDE_DIR mosquitto.h REQUIRED)
+# Find libmosquitto using pkg-config
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(mosquitto REQUIRED libmosquitto)
 
 # Library sources
 set(STINGER_UTILS_SOURCES
     src/mqttbrokerconnection.cpp
     src/mqttmessage.cpp
     src/format.cpp
+    $<$<BOOL:${STINGER_UTILS_BUILD_MOCK}>:src/mockconnection.cpp>
 )
 
 # Library headers
@@ -30,12 +29,11 @@ set(STINGER_UTILS_HEADERS
     include/stinger/utils/mqttmessage.hpp
     include/stinger/utils/mqttproperties.hpp
     include/stinger/utils/format.hpp
+    include/stinger/utils/uuid.hpp
+    $<$<BOOL:${STINGER_UTILS_BUILD_MOCK}>:include/stinger/utils/mockconnection.hpp>
 )
 
-# Add mock connection if enabled
 if(STINGER_UTILS_BUILD_MOCK)
-    list(APPEND STINGER_UTILS_SOURCES src/mockconnection.cpp)
-    list(APPEND STINGER_UTILS_HEADERS include/stinger/utils/mockconnection.hpp)
     message(STATUS "Building with MockConnection support")
 endif()
 
@@ -47,16 +45,22 @@ add_library(Stinger::Utils ALIAS stinger_utils)
 target_include_directories(stinger_utils
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     PRIVATE
-        ${MOSQUITTO_INCLUDE_DIR}
+        ${mosquitto_INCLUDE_DIRS}
 )
 
 # Link libmosquitto
-target_link_libraries(stinger_utils PUBLIC ${MOSQUITTO_LIBRARY})
+target_link_libraries(stinger_utils PUBLIC ${mosquitto_LIBRARIES})
 
-# Set compile features
-target_compile_features(stinger_utils PUBLIC cxx_std_17)
+# Set target properties
+set_target_properties(stinger_utils
+    PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED ON
+        CXX_EXTENSIONS OFF
+        POSITION_INDEPENDENT_CODE ON
+)
 
 # Add tests
 if(STINGER_UTILS_BUILD_TESTS)
@@ -70,8 +74,6 @@ if(STINGER_UTILS_BUILD_EXAMPLES)
 endif()
 
 # Installation rules
-include(GNUInstallDirs)
-
 install(TARGETS stinger_utils
     EXPORT StingerUtilsTargets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -91,7 +93,6 @@ install(EXPORT StingerUtilsTargets
 )
 
 # Create config file
-include(CMakePackageConfigHelpers)
 configure_package_config_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/StingerUtilsConfig.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/StingerUtilsConfig.cmake
