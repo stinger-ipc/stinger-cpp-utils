@@ -1,4 +1,4 @@
-#include <stinger/utils/return_codes.hpp>
+#include <stinger/error/return_codes.hpp>
 
 namespace stinger {
 namespace error {
