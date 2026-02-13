@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(StingerUtils VERSION 0.1.3 LANGUAGES CXX)
+project(StingerUtils VERSION 0.1.4 LANGUAGES CXX)
 
 # Include standard installation directories
 include(GNUInstallDirs)
@@ -16,20 +16,26 @@ pkg_check_modules(mosquitto REQUIRED libmosquitto)
 
 # Library sources
 set(STINGER_UTILS_SOURCES
+    src/conversions.cpp
+    src/format.cpp
+    src/hash.cpp
     src/mqttbrokerconnection.cpp
     src/mqttmessage.cpp
-    src/format.cpp
+    src/return_codes.cpp
     $<$<BOOL:${STINGER_UTILS_BUILD_MOCK}>:src/mockconnection.cpp>
 )
 
 # Library headers
 set(STINGER_UTILS_HEADERS
+    include/stinger/utils/conversions.hpp
+    include/stinger/utils/format.hpp
+    include/stinger/utils/hash.hpp
     include/stinger/utils/iconnection.hpp
     include/stinger/utils/mqttbrokerconnection.hpp
     include/stinger/utils/mqttmessage.hpp
     include/stinger/utils/mqttproperties.hpp
-    include/stinger/utils/format.hpp
     include/stinger/utils/uuid.hpp
+    include/stinger/error/return_codes.hpp
     $<$<BOOL:${STINGER_UTILS_BUILD_MOCK}>:include/stinger/utils/mockconnection.hpp>
 )
 
