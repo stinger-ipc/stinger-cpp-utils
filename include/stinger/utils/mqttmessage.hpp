@@ -27,27 +27,27 @@ struct MqttMessage {
     static MqttMessage PropertyValue(const std::string& topic, const std::string& payload, int propertyVersion);
 
     static MqttMessage PropertyUpdateRequest(const std::string& topic, const std::string& payload, int propertyVersion,
-                                             const std::vector<std::byte>& correlationId,
+                                             const std::vector<std::byte>& correlationData,
                                              const std::string& responseTopic);
 
     static MqttMessage PropertyUpdateResponse(const std::string& topic, const std::string& payload, int propertyVersion,
-                                              const std::vector<std::byte>& correlationId,
+                                              const std::vector<std::byte>& correlationData,
                                               stinger::error::MethodReturnCode returnCode,
                                               const std::string& debugMessage);
 
     static MqttMessage PropertyUpdateResponse(const std::string& topic, const std::string& payload, int propertyVersion,
-                                              const std::vector<std::byte>& correlationId,
+                                              const std::vector<std::byte>& correlationData,
                                               stinger::error::MethodReturnCode returnCode);
 
     static MqttMessage MethodRequest(const std::string& topic, const std::string& payload,
-                                     const std::vector<std::byte>& correlationId, const std::string& responseTopic);
-
+                                     const std::vector<std::byte>& correlationData, const std::string& responseTopic);
+                                     
     static MqttMessage MethodResponse(const std::string& topic, const std::string& payload,
-                                      const std::vector<std::byte>& correlationId,
+                                      const std::vector<std::byte>& correlationData,
                                       stinger::error::MethodReturnCode returnCode, const std::string& debugMessage);
 
     static MqttMessage MethodResponse(const std::string& topic, const std::string& payload,
-                                      const std::vector<std::byte>& correlationId,
+                                      const std::vector<std::byte>& correlationData,
                                       stinger::error::MethodReturnCode returnCode);
 };
 

@@ -64,10 +64,10 @@ MqttBrokerConnection::MqttBrokerConnection(const std::string& host, int port, co
             if (msg.properties.contentType) {
                 mosquitto_property_add_string(&propList, MQTT_PROP_CONTENT_TYPE, msg.properties.contentType->c_str());
             }
-            if (msg.properties.correlationId) {
+            if (msg.properties.correlationData) {
                 mosquitto_property_add_binary(&propList, MQTT_PROP_CORRELATION_DATA,
-                                              static_cast<const void*>(msg.properties.correlationId->data()),
-                                              msg.properties.correlationId->size());
+                                              static_cast<const void*>(msg.properties.correlationData->data()),
+                                              msg.properties.correlationData->size());
             }
             if (msg.properties.responseTopic) {
                 mosquitto_property_add_string(&propList, MQTT_PROP_RESPONSE_TOPIC,
@@ -154,7 +154,7 @@ MqttBrokerConnection::MqttBrokerConnection(const std::string& host, int port, co
                     for (uint16_t i = 0; i < correlation_data_len; ++i) {
                         correlationVec.push_back(static_cast<std::byte>(bytePtr[i]));
                     }
-                    mqttProps.correlationId = correlationVec;
+                    mqttProps.correlationData = correlationVec;
                     free(correlation_data);
                 }
             } else if (mosquitto_property_identifier(prop) == MQTT_PROP_RESPONSE_TOPIC) {
@@ -264,10 +264,10 @@ std::future<bool> MqttBrokerConnection::Publish(const MqttMessage& message) {
     if (message.properties.contentType) {
         mosquitto_property_add_string(&propList, MQTT_PROP_CONTENT_TYPE, message.properties.contentType->c_str());
     }
-    if (message.properties.correlationId) {
+    if (message.properties.correlationData) {
         mosquitto_property_add_binary(&propList, MQTT_PROP_CORRELATION_DATA,
-                                      static_cast<const void*>(message.properties.correlationId->data()),
-                                      message.properties.correlationId->size());
+                                      static_cast<const void*>(message.properties.correlationData->data()),
+                                      message.properties.correlationData->size());
     }
     if (message.properties.responseTopic) {
         mosquitto_property_add_string(&propList, MQTT_PROP_RESPONSE_TOPIC, message.properties.responseTopic->c_str());

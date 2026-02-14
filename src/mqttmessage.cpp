@@ -21,60 +21,60 @@ MqttMessage MqttMessage::PropertyValue(const std::string& topic, const std::stri
 }
 
 MqttMessage MqttMessage::PropertyUpdateRequest(const std::string& topic, const std::string& payload,
-                                               int propertyVersion, const std::vector<std::byte>& correlationId,
+                                               int propertyVersion, const std::vector<std::byte>& correlationData,
                                                const std::string& responseTopic) {
     MqttProperties props;
     props.propertyVersion = propertyVersion;
-    props.correlationId = correlationId;
+    props.correlationData = correlationData;
     props.responseTopic = responseTopic;
     return MqttMessage(topic, payload, 1, false, props);
 }
 
 MqttMessage MqttMessage::PropertyUpdateResponse(const std::string& topic, const std::string& payload,
-                                                int propertyVersion, const std::vector<std::byte>& correlationId,
+                                                int propertyVersion, const std::vector<std::byte>& correlationData,
                                                 stinger::error::MethodReturnCode returnCode,
                                                 const std::string& debugMessage) {
     MqttProperties props;
     props.propertyVersion = propertyVersion;
-    props.correlationId = correlationId;
+    props.correlationData = correlationData;
     props.returnCode = static_cast<int>(returnCode);
     props.debugInfo = debugMessage;
     return MqttMessage(topic, payload, 1, false, props);
 }
 
 MqttMessage MqttMessage::PropertyUpdateResponse(const std::string& topic, const std::string& payload,
-                                                int propertyVersion, const std::vector<std::byte>& correlationId,
+                                                int propertyVersion, const std::vector<std::byte>& correlationData,
                                                 stinger::error::MethodReturnCode returnCode) {
     MqttProperties props;
     props.propertyVersion = propertyVersion;
-    props.correlationId = correlationId;
+    props.correlationData = correlationData;
     props.returnCode = static_cast<int>(returnCode);
     return MqttMessage(topic, payload, 1, false, props);
 }
 
 MqttMessage MqttMessage::MethodRequest(const std::string& topic, const std::string& payload,
-                                       const std::vector<std::byte>& correlationId, const std::string& responseTopic) {
+                                       const std::vector<std::byte>& correlationData, const std::string& responseTopic) {
     MqttProperties props;
-    props.correlationId = correlationId;
+    props.correlationData = correlationData;
     props.responseTopic = responseTopic;
     return MqttMessage(topic, payload, 2, false, props);
 }
 
 MqttMessage MqttMessage::MethodResponse(const std::string& topic, const std::string& payload,
-                                        const std::vector<std::byte>& correlationId,
+                                        const std::vector<std::byte>& correlationData,
                                         stinger::error::MethodReturnCode returnCode, const std::string& debugMessage) {
     MqttProperties props;
-    props.correlationId = correlationId;
+    props.correlationData = correlationData;
     props.returnCode = static_cast<int>(returnCode);
     props.debugInfo = debugMessage;
     return MqttMessage(topic, payload, 1, false, props);
 }
 
 MqttMessage MqttMessage::MethodResponse(const std::string& topic, const std::string& payload,
-                                        const std::vector<std::byte>& correlationId,
+                                        const std::vector<std::byte>& correlationData,
                                         stinger::error::MethodReturnCode returnCode) {
     MqttProperties props;
-    props.correlationId = correlationId;
+    props.correlationData = correlationData;
     props.returnCode = static_cast<int>(returnCode);
     return MqttMessage(topic, payload, 1, false, props);
 }

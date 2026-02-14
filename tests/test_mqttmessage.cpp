@@ -81,9 +81,9 @@ TEST(MqttMessageTest, PropertyUpdateRequestFactoryMethod) {
     ASSERT_TRUE(msg.properties.propertyVersion.has_value());
     EXPECT_EQ(*msg.properties.propertyVersion, 10);
 
-    ASSERT_TRUE(msg.properties.correlationId.has_value());
-    EXPECT_EQ(msg.properties.correlationId->size(), 3);
-    EXPECT_EQ((*msg.properties.correlationId)[0], std::byte{0x01});
+    ASSERT_TRUE(msg.properties.correlationData.has_value());
+    EXPECT_EQ(msg.properties.correlationData->size(), 3);
+    EXPECT_EQ((*msg.properties.correlationData)[0], std::byte{0x01});
 
     ASSERT_TRUE(msg.properties.responseTopic.has_value());
     EXPECT_EQ(*msg.properties.responseTopic, "response/topic");
@@ -104,8 +104,8 @@ TEST(MqttMessageTest, PropertyUpdateResponseFactoryMethod) {
     ASSERT_TRUE(msg.properties.propertyVersion.has_value());
     EXPECT_EQ(*msg.properties.propertyVersion, 7);
 
-    ASSERT_TRUE(msg.properties.correlationId.has_value());
-    EXPECT_EQ(msg.properties.correlationId->size(), 2);
+    ASSERT_TRUE(msg.properties.correlationData.has_value());
+    EXPECT_EQ(msg.properties.correlationData->size(), 2);
 
     ASSERT_TRUE(msg.properties.returnCode.has_value());
     EXPECT_EQ(*msg.properties.returnCode, 0);
@@ -125,8 +125,8 @@ TEST(MqttMessageTest, MethodRequestFactoryMethod) {
     EXPECT_EQ(msg.qos, 2);
     EXPECT_FALSE(msg.retain);
 
-    ASSERT_TRUE(msg.properties.correlationId.has_value());
-    EXPECT_EQ(msg.properties.correlationId->size(), 4);
+    ASSERT_TRUE(msg.properties.correlationData.has_value());
+    EXPECT_EQ(msg.properties.correlationData->size(), 4);
 
     ASSERT_TRUE(msg.properties.responseTopic.has_value());
     EXPECT_EQ(*msg.properties.responseTopic, "method/response");
@@ -144,9 +144,9 @@ TEST(MqttMessageTest, MethodResponseFactoryMethod) {
     EXPECT_EQ(msg.qos, 1);
     EXPECT_FALSE(msg.retain);
 
-    ASSERT_TRUE(msg.properties.correlationId.has_value());
-    EXPECT_EQ(msg.properties.correlationId->size(), 1);
-    EXPECT_EQ((*msg.properties.correlationId)[0], std::byte{0xFF});
+    ASSERT_TRUE(msg.properties.correlationData.has_value());
+    EXPECT_EQ(msg.properties.correlationData->size(), 1);
+    EXPECT_EQ((*msg.properties.correlationData)[0], std::byte{0xFF});
 
     ASSERT_TRUE(msg.properties.returnCode.has_value());
     EXPECT_EQ(*msg.properties.returnCode, 0); // SUCCESS = 0
@@ -159,7 +159,7 @@ TEST(MqttMessageTest, MethodResponseFactoryMethod) {
 TEST(MqttPropertiesTest, DefaultConstructor) {
     MqttProperties props;
 
-    EXPECT_FALSE(props.correlationId.has_value());
+    EXPECT_FALSE(props.correlationData.has_value());
     EXPECT_FALSE(props.responseTopic.has_value());
     EXPECT_FALSE(props.subscriptionId.has_value());
     EXPECT_FALSE(props.messageExpiryInterval.has_value());
@@ -204,6 +204,6 @@ TEST(MqttMessageTest, EmptyCorrelationId) {
 
     auto msg = MqttMessage::MethodRequest("test/topic", "payload", emptyId, "response");
 
-    ASSERT_TRUE(msg.properties.correlationId.has_value());
-    EXPECT_EQ(msg.properties.correlationId->size(), 0);
+    ASSERT_TRUE(msg.properties.correlationData.has_value());
+    EXPECT_EQ(msg.properties.correlationData->size(), 0);
 }

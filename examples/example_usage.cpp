@@ -22,9 +22,9 @@ int main() {
         std::cout << "Received message on topic: " << msg.topic << std::endl;
         std::cout << "Payload: " << msg.payload << std::endl;
 
-        // Check if there's a correlation ID
-        if (msg.properties.correlationId) {
-            std::cout << "Correlation ID present (" << msg.properties.correlationId->size() << " bytes)" << std::endl;
+        // Check if there's correlation data
+        if (msg.properties.correlationData) {
+            std::cout << "Correlation data present (" << msg.properties.correlationData->size() << " bytes)" << std::endl;
         }
 
         // Check if there's a response topic
