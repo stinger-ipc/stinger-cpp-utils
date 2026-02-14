@@ -93,7 +93,8 @@ TEST(MqttMessageTest, PropertyUpdateRequestFactoryMethod) {
 TEST(MqttMessageTest, PropertyUpdateResponseFactoryMethod) {
     std::vector<std::byte> correlationId = {std::byte{0xAA}, std::byte{0xBB}};
 
-    auto msg = MqttMessage::PropertyUpdateResponse("prop/response", "success", 7, correlationId, 0, "Update completed");
+    auto msg = MqttMessage::PropertyUpdateResponse("prop/response", "success", 7, correlationId,
+                                                   stinger::error::MethodReturnCode::SUCCESS, "Update completed");
 
     EXPECT_EQ(msg.topic, "prop/response");
     EXPECT_EQ(msg.payload, "success");
@@ -135,7 +136,8 @@ TEST(MqttMessageTest, MethodRequestFactoryMethod) {
 TEST(MqttMessageTest, MethodResponseFactoryMethod) {
     std::vector<std::byte> correlationId = {std::byte{0xFF}};
 
-    auto msg = MqttMessage::MethodResponse("method/response", "{\"result\":42}", correlationId, 200, "OK");
+    auto msg = MqttMessage::MethodResponse("method/response", "{\"result\":42}", correlationId,
+                                           stinger::error::MethodReturnCode::SUCCESS, "OK");
 
     EXPECT_EQ(msg.topic, "method/response");
     EXPECT_EQ(msg.payload, "{\"result\":42}");
@@ -147,7 +149,7 @@ TEST(MqttMessageTest, MethodResponseFactoryMethod) {
     EXPECT_EQ((*msg.properties.correlationId)[0], std::byte{0xFF});
 
     ASSERT_TRUE(msg.properties.returnCode.has_value());
-    EXPECT_EQ(*msg.properties.returnCode, 200);
+    EXPECT_EQ(*msg.properties.returnCode, 0); // SUCCESS = 0
 
     ASSERT_TRUE(msg.properties.debugInfo.has_value());
     EXPECT_EQ(*msg.properties.debugInfo, "OK");

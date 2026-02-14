@@ -1,5 +1,6 @@
 #pragma once
 
+#include "stinger/error/return_codes.hpp"
 #include "stinger/utils/mqttproperties.hpp"
 #include <string>
 
@@ -30,15 +31,24 @@ struct MqttMessage {
                                              const std::string& responseTopic);
 
     static MqttMessage PropertyUpdateResponse(const std::string& topic, const std::string& payload, int propertyVersion,
-                                              const std::vector<std::byte>& correlationId, int returnCode,
+                                              const std::vector<std::byte>& correlationId,
+                                              stinger::error::MethodReturnCode returnCode,
                                               const std::string& debugMessage);
+
+    static MqttMessage PropertyUpdateResponse(const std::string& topic, const std::string& payload, int propertyVersion,
+                                              const std::vector<std::byte>& correlationId,
+                                              stinger::error::MethodReturnCode returnCode);
 
     static MqttMessage MethodRequest(const std::string& topic, const std::string& payload,
                                      const std::vector<std::byte>& correlationId, const std::string& responseTopic);
 
     static MqttMessage MethodResponse(const std::string& topic, const std::string& payload,
-                                      const std::vector<std::byte>& correlationId, int returnCode,
-                                      const std::string& debugMessage);
+                                      const std::vector<std::byte>& correlationId,
+                                      stinger::error::MethodReturnCode returnCode, const std::string& debugMessage);
+
+    static MqttMessage MethodResponse(const std::string& topic, const std::string& payload,
+                                      const std::vector<std::byte>& correlationId,
+                                      stinger::error::MethodReturnCode returnCode);
 };
 
 } // namespace utils

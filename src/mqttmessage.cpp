@@ -32,12 +32,23 @@ MqttMessage MqttMessage::PropertyUpdateRequest(const std::string& topic, const s
 
 MqttMessage MqttMessage::PropertyUpdateResponse(const std::string& topic, const std::string& payload,
                                                 int propertyVersion, const std::vector<std::byte>& correlationId,
-                                                int returnCode, const std::string& debugMessage) {
+                                                stinger::error::MethodReturnCode returnCode,
+                                                const std::string& debugMessage) {
     MqttProperties props;
     props.propertyVersion = propertyVersion;
     props.correlationId = correlationId;
-    props.returnCode = returnCode;
+    props.returnCode = static_cast<int>(returnCode);
     props.debugInfo = debugMessage;
+    return MqttMessage(topic, payload, 1, false, props);
+}
+
+MqttMessage MqttMessage::PropertyUpdateResponse(const std::string& topic, const std::string& payload,
+                                                int propertyVersion, const std::vector<std::byte>& correlationId,
+                                                stinger::error::MethodReturnCode returnCode) {
+    MqttProperties props;
+    props.propertyVersion = propertyVersion;
+    props.correlationId = correlationId;
+    props.returnCode = static_cast<int>(returnCode);
     return MqttMessage(topic, payload, 1, false, props);
 }
 
@@ -50,12 +61,21 @@ MqttMessage MqttMessage::MethodRequest(const std::string& topic, const std::stri
 }
 
 MqttMessage MqttMessage::MethodResponse(const std::string& topic, const std::string& payload,
-                                        const std::vector<std::byte>& correlationId, int returnCode,
-                                        const std::string& debugMessage) {
+                                        const std::vector<std::byte>& correlationId,
+                                        stinger::error::MethodReturnCode returnCode, const std::string& debugMessage) {
     MqttProperties props;
     props.correlationId = correlationId;
-    props.returnCode = returnCode;
+    props.returnCode = static_cast<int>(returnCode);
     props.debugInfo = debugMessage;
+    return MqttMessage(topic, payload, 1, false, props);
+}
+
+MqttMessage MqttMessage::MethodResponse(const std::string& topic, const std::string& payload,
+                                        const std::vector<std::byte>& correlationId,
+                                        stinger::error::MethodReturnCode returnCode) {
+    MqttProperties props;
+    props.correlationId = correlationId;
+    props.returnCode = static_cast<int>(returnCode);
     return MqttMessage(topic, payload, 1, false, props);
 }
 
