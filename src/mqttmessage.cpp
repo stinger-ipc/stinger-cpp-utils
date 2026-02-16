@@ -53,7 +53,8 @@ MqttMessage MqttMessage::PropertyUpdateResponse(const std::string& topic, const 
 }
 
 MqttMessage MqttMessage::MethodRequest(const std::string& topic, const std::string& payload,
-                                       const std::vector<std::byte>& correlationData, const std::string& responseTopic) {
+                                       const std::vector<std::byte>& correlationData,
+                                       const std::string& responseTopic) {
     MqttProperties props;
     props.correlationData = correlationData;
     props.responseTopic = responseTopic;
@@ -77,6 +78,17 @@ MqttMessage MqttMessage::MethodResponse(const std::string& topic, const std::str
     props.correlationData = correlationData;
     props.returnCode = static_cast<int>(returnCode);
     return MqttMessage(topic, payload, 1, false, props);
+}
+
+MqttMessage MqttMessage::ServiceOnline(const std::string& topic, const std::string& payload,
+                                       int messageExpiryInterval) {
+    MqttProperties props;
+    props.messageExpiryInterval = messageExpiryInterval;
+    return MqttMessage(topic, payload, 1, true, props);
+}
+
+MqttMessage MqttMessage::ServiceOffline(const std::string& topic) {
+    return MqttMessage(topic, "", 1, true, MqttProperties());
 }
 
 } // namespace utils

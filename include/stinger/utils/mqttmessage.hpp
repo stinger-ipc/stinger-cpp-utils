@@ -41,7 +41,7 @@ struct MqttMessage {
 
     static MqttMessage MethodRequest(const std::string& topic, const std::string& payload,
                                      const std::vector<std::byte>& correlationData, const std::string& responseTopic);
-                                     
+
     static MqttMessage MethodResponse(const std::string& topic, const std::string& payload,
                                       const std::vector<std::byte>& correlationData,
                                       stinger::error::MethodReturnCode returnCode, const std::string& debugMessage);
@@ -49,6 +49,10 @@ struct MqttMessage {
     static MqttMessage MethodResponse(const std::string& topic, const std::string& payload,
                                       const std::vector<std::byte>& correlationData,
                                       stinger::error::MethodReturnCode returnCode);
+
+    static MqttMessage ServiceOnline(const std::string& topic, const std::string& payload, int messageExpiryInterval);
+
+    static MqttMessage ServiceOffline(const std::string& topic);
 };
 
 } // namespace utils
