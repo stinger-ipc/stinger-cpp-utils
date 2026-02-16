@@ -68,10 +68,10 @@ TEST(MqttMessageTest, PropertyValueFactoryMethod) {
 
 // Test PropertyUpdateRequest factory method
 TEST(MqttMessageTest, PropertyUpdateRequestFactoryMethod) {
-    std::vector<std::byte> correlationId = {std::byte{0x01}, std::byte{0x02}, std::byte{0x03}};
+    std::vector<std::byte> correlationData = {std::byte{0x01}, std::byte{0x02}, std::byte{0x03}};
     std::string responseTopic = "response/topic";
 
-    auto msg = MqttMessage::PropertyUpdateRequest("prop/update", "new_value", 10, correlationId, responseTopic);
+    auto msg = MqttMessage::PropertyUpdateRequest("prop/update", "new_value", 10, correlationData, responseTopic);
 
     EXPECT_EQ(msg.topic, "prop/update");
     EXPECT_EQ(msg.payload, "new_value");
@@ -91,9 +91,9 @@ TEST(MqttMessageTest, PropertyUpdateRequestFactoryMethod) {
 
 // Test PropertyUpdateResponse factory method
 TEST(MqttMessageTest, PropertyUpdateResponseFactoryMethod) {
-    std::vector<std::byte> correlationId = {std::byte{0xAA}, std::byte{0xBB}};
+    std::vector<std::byte> correlationData = {std::byte{0xAA}, std::byte{0xBB}};
 
-    auto msg = MqttMessage::PropertyUpdateResponse("prop/response", "success", 7, correlationId,
+    auto msg = MqttMessage::PropertyUpdateResponse("prop/response", "success", 7, correlationData,
                                                    stinger::error::MethodReturnCode::SUCCESS, "Update completed");
 
     EXPECT_EQ(msg.topic, "prop/response");
@@ -116,9 +116,9 @@ TEST(MqttMessageTest, PropertyUpdateResponseFactoryMethod) {
 
 // Test MethodRequest factory method
 TEST(MqttMessageTest, MethodRequestFactoryMethod) {
-    std::vector<std::byte> correlationId = {std::byte{0x11}, std::byte{0x22}, std::byte{0x33}, std::byte{0x44}};
+    std::vector<std::byte> correlationData = {std::byte{0x11}, std::byte{0x22}, std::byte{0x33}, std::byte{0x44}};
 
-    auto msg = MqttMessage::MethodRequest("method/call", "{\"param\":\"value\"}", correlationId, "method/response");
+    auto msg = MqttMessage::MethodRequest("method/call", "{\"param\":\"value\"}", correlationData, "method/response");
 
     EXPECT_EQ(msg.topic, "method/call");
     EXPECT_EQ(msg.payload, "{\"param\":\"value\"}");
@@ -134,9 +134,9 @@ TEST(MqttMessageTest, MethodRequestFactoryMethod) {
 
 // Test MethodResponse factory method
 TEST(MqttMessageTest, MethodResponseFactoryMethod) {
-    std::vector<std::byte> correlationId = {std::byte{0xFF}};
+    std::vector<std::byte> correlationData = {std::byte{0xFF}};
 
-    auto msg = MqttMessage::MethodResponse("method/response", "{\"result\":42}", correlationId,
+    auto msg = MqttMessage::MethodResponse("method/response", "{\"result\":42}", correlationData,
                                            stinger::error::MethodReturnCode::SUCCESS, "OK");
 
     EXPECT_EQ(msg.topic, "method/response");
@@ -199,7 +199,7 @@ TEST(MqttMessageTest, EmptyPayload) {
     EXPECT_EQ(msg.payload, "");
 }
 
-TEST(MqttMessageTest, EmptyCorrelationId) {
+TEST(MqttMessageTest, EmptycorrelationData) {
     std::vector<std::byte> emptyId;
 
     auto msg = MqttMessage::MethodRequest("test/topic", "payload", emptyId, "response");
