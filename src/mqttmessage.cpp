@@ -31,7 +31,8 @@ MqttMessage MqttMessage::PropertyUpdateRequest(const std::string& topic, const s
 }
 
 MqttMessage MqttMessage::PropertyUpdateResponse(const std::string& topic, const std::string& payload,
-                                                int propertyVersion, const std::vector<std::byte>& correlationData,
+                                                int propertyVersion,
+                                                const std::optional<std::vector<std::byte>>& correlationData,
                                                 stinger::error::MethodReturnCode returnCode,
                                                 const std::string& debugMessage) {
     MqttProperties props;
@@ -43,7 +44,8 @@ MqttMessage MqttMessage::PropertyUpdateResponse(const std::string& topic, const 
 }
 
 MqttMessage MqttMessage::PropertyUpdateResponse(const std::string& topic, const std::string& payload,
-                                                int propertyVersion, const std::vector<std::byte>& correlationData,
+                                                int propertyVersion,
+                                                const std::optional<std::vector<std::byte>>& correlationData,
                                                 stinger::error::MethodReturnCode returnCode) {
     MqttProperties props;
     props.propertyVersion = propertyVersion;
@@ -62,7 +64,7 @@ MqttMessage MqttMessage::MethodRequest(const std::string& topic, const std::stri
 }
 
 MqttMessage MqttMessage::MethodResponse(const std::string& topic, const std::string& payload,
-                                        const std::vector<std::byte>& correlationData,
+                                        const std::optional<std::vector<std::byte>>& correlationData,
                                         stinger::error::MethodReturnCode returnCode, const std::string& debugMessage) {
     MqttProperties props;
     props.correlationData = correlationData;
@@ -72,7 +74,7 @@ MqttMessage MqttMessage::MethodResponse(const std::string& topic, const std::str
 }
 
 MqttMessage MqttMessage::MethodResponse(const std::string& topic, const std::string& payload,
-                                        const std::vector<std::byte>& correlationData,
+                                        const std::optional<std::vector<std::byte>>& correlationData,
                                         stinger::error::MethodReturnCode returnCode) {
     MqttProperties props;
     props.correlationData = correlationData;

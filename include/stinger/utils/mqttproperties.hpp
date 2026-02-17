@@ -10,7 +10,7 @@ namespace utils {
 
 struct MqttProperties {
     MqttProperties()
-                : correlationData(std::nullopt), responseTopic(std::nullopt), subscriptionId(std::nullopt),
+        : correlationData(std::nullopt), responseTopic(std::nullopt), subscriptionId(std::nullopt),
           messageExpiryInterval(std::nullopt), contentType(std::nullopt), debugInfo(std::nullopt),
           returnCode(std::nullopt), propertyVersion(std::nullopt), version(std::nullopt) {}
     std::optional<std::vector<std::byte>> correlationData;

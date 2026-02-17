@@ -24,7 +24,8 @@ int main() {
 
         // Check if there's correlation data
         if (msg.properties.correlationData) {
-            std::cout << "Correlation data present (" << msg.properties.correlationData->size() << " bytes)" << std::endl;
+            std::cout << "Correlation data present (" << msg.properties.correlationData->size() << " bytes)"
+                      << std::endl;
         }
 
         // Check if there's a response topic

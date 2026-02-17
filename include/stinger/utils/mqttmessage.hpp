@@ -2,6 +2,7 @@
 
 #include "stinger/error/return_codes.hpp"
 #include "stinger/utils/mqttproperties.hpp"
+#include <optional>
 #include <string>
 
 namespace stinger {
@@ -31,23 +32,23 @@ struct MqttMessage {
                                              const std::string& responseTopic);
 
     static MqttMessage PropertyUpdateResponse(const std::string& topic, const std::string& payload, int propertyVersion,
-                                              const std::vector<std::byte>& correlationData,
+                                              const std::optional<std::vector<std::byte>>& correlationData,
                                               stinger::error::MethodReturnCode returnCode,
                                               const std::string& debugMessage);
 
     static MqttMessage PropertyUpdateResponse(const std::string& topic, const std::string& payload, int propertyVersion,
-                                              const std::vector<std::byte>& correlationData,
+                                              const std::optional<std::vector<std::byte>>& correlationData,
                                               stinger::error::MethodReturnCode returnCode);
 
     static MqttMessage MethodRequest(const std::string& topic, const std::string& payload,
                                      const std::vector<std::byte>& correlationData, const std::string& responseTopic);
 
     static MqttMessage MethodResponse(const std::string& topic, const std::string& payload,
-                                      const std::vector<std::byte>& correlationData,
+                                      const std::optional<std::vector<std::byte>>& correlationData,
                                       stinger::error::MethodReturnCode returnCode, const std::string& debugMessage);
 
     static MqttMessage MethodResponse(const std::string& topic, const std::string& payload,
-                                      const std::vector<std::byte>& correlationData,
+                                      const std::optional<std::vector<std::byte>>& correlationData,
                                       stinger::error::MethodReturnCode returnCode);
 
     static MqttMessage ServiceOnline(const std::string& topic, const std::string& payload, int messageExpiryInterval);
