@@ -11,11 +11,14 @@ Message::Message(const Message& other)
     : topic(other.topic), payload(other.payload), qos(other.qos), retain(other.retain), properties(other.properties) {}
 
 Message Message::Signal(const std::string& topic, const std::string& payload) {
+    Properties props;
+    props.contentType = "application/json";
     return Message(topic, payload, 2, false, Properties());
 }
 
 Message Message::PropertyValue(const std::string& topic, const std::string& payload, int propertyVersion) {
     Properties props;
+    props.contentType = "application/json";
     props.propertyVersion = propertyVersion;
     return Message(topic, payload, 1, true, props);
 }
@@ -24,6 +27,7 @@ Message Message::PropertyUpdateRequest(const std::string& topic, const std::stri
                                                int propertyVersion, const std::vector<std::byte>& correlationData,
                                                const std::string& responseTopic) {
     Properties props;
+    props.contentType = "application/json";
     props.propertyVersion = propertyVersion;
     props.correlationData = correlationData;
     props.responseTopic = responseTopic;
@@ -36,6 +40,7 @@ Message Message::PropertyUpdateResponse(const std::string& topic, const std::str
                                                 stinger::error::MethodReturnCode returnCode,
                                                 const std::string& debugMessage) {
     Properties props;
+    props.contentType = "application/json";
     props.propertyVersion = propertyVersion;
     props.correlationData = correlationData;
     props.returnCode = static_cast<int>(returnCode);
@@ -48,6 +53,7 @@ Message Message::PropertyUpdateResponse(const std::string& topic, const std::str
                                                 const std::optional<std::vector<std::byte>>& correlationData,
                                                 stinger::error::MethodReturnCode returnCode) {
     Properties props;
+    props.contentType = "application/json";
     props.propertyVersion = propertyVersion;
     props.correlationData = correlationData;
     props.returnCode = static_cast<int>(returnCode);
@@ -58,6 +64,7 @@ Message Message::MethodRequest(const std::string& topic, const std::string& payl
                                        const std::vector<std::byte>& correlationData,
                                        const std::string& responseTopic) {
     Properties props;
+    props.contentType = "application/json";
     props.correlationData = correlationData;
     props.responseTopic = responseTopic;
     return Message(topic, payload, 2, false, props);
@@ -67,6 +74,7 @@ Message Message::MethodResponse(const std::string& topic, const std::string& pay
                                         const std::optional<std::vector<std::byte>>& correlationData,
                                         stinger::error::MethodReturnCode returnCode, const std::string& debugMessage) {
     Properties props;
+    props.contentType = "application/json";
     props.correlationData = correlationData;
     props.returnCode = static_cast<int>(returnCode);
     props.debugInfo = debugMessage;
@@ -77,6 +85,7 @@ Message Message::MethodResponse(const std::string& topic, const std::string& pay
                                         const std::optional<std::vector<std::byte>>& correlationData,
                                         stinger::error::MethodReturnCode returnCode) {
     Properties props;
+    props.contentType = "application/json";
     props.correlationData = correlationData;
     props.returnCode = static_cast<int>(returnCode);
     return Message(topic, payload, 1, false, props);
@@ -85,6 +94,7 @@ Message Message::MethodResponse(const std::string& topic, const std::string& pay
 Message Message::ServiceOnline(const std::string& topic, const std::string& payload,
                                        int messageExpiryInterval) {
     Properties props;
+    props.contentType = "application/json";
     props.messageExpiryInterval = messageExpiryInterval;
     return Message(topic, payload, 1, true, props);
 }
