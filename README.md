@@ -102,25 +102,25 @@ target_link_libraries(my_app PRIVATE Stinger::Utils)
 Example code:
 
 ```cpp
-#include <stinger/utils/mqttbrokerconnection.hpp>
-#include <stinger/utils/mqttmessage.hpp>
+#include <stinger/mqtt/brokerconnection.hpp>
+#include <stinger/mqtt/message.hpp>
 
-using namespace stinger::utils;
+using namespace stinger;
 
 int main() {
     // Create MQTT connection
-    auto mqtt = std::make_unique<MqttBrokerConnection>("localhost", 1883, "my_client");
+    auto mqtt = std::make_unique<mqtt::BrokerConnection>("localhost", 1883, "my_client");
     
     // Subscribe to a topic
     mqtt->Subscribe("sensor/temperature", 1);
     
     // Add message callback
-    mqtt->AddMessageCallback([](const MqttMessage& msg) {
+    mqtt->AddMessageCallback([](const mqtt::Message& msg) {
         std::cout << "Topic: " << msg.topic << ", Payload: " << msg.payload << std::endl;
     });
     
     // Publish a signal message
-    auto msg = MqttMessage::Signal("sensor/temperature", "22.5");
+    auto msg = mqtt::Message::Signal("sensor/temperature", "22.5");
     mqtt->Publish(msg);
     
     return 0;
@@ -134,6 +134,8 @@ stinger-cpp-utils/
 ├── CMakeLists.txt          # Main build configuration
 ├── include/                # Public headers
 │   └── stinger/utils/      # Namespace-aligned headers
+│   └── stinger/mqtt/       # Namespace-aligned headers
+│   └── stinger/error/      # Namespace-aligned headers
 ├── src/                    # Implementation files
 ├── tests/                  # Unit tests (Google Test)
 ├── examples/               # Usage examples

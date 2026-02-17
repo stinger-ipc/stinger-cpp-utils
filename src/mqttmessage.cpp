@@ -1,97 +1,97 @@
-#include "stinger/utils/mqttmessage.hpp"
+#include "stinger/mqtt/message.hpp"
 
 namespace stinger {
-namespace utils {
+namespace mqtt {
 
-MqttMessage::MqttMessage(const std::string& topic, const std::string& payload, unsigned qos, bool retain,
-                         const MqttProperties& props)
+Message::Message(const std::string& topic, const std::string& payload, unsigned qos, bool retain,
+                         const Properties& props)
     : topic(topic), payload(payload), qos(qos), retain(retain), properties(props) {}
 
-MqttMessage::MqttMessage(const MqttMessage& other)
+Message::Message(const Message& other)
     : topic(other.topic), payload(other.payload), qos(other.qos), retain(other.retain), properties(other.properties) {}
 
-MqttMessage MqttMessage::Signal(const std::string& topic, const std::string& payload) {
-    return MqttMessage(topic, payload, 2, false, MqttProperties());
+Message Message::Signal(const std::string& topic, const std::string& payload) {
+    return Message(topic, payload, 2, false, Properties());
 }
 
-MqttMessage MqttMessage::PropertyValue(const std::string& topic, const std::string& payload, int propertyVersion) {
-    MqttProperties props;
+Message Message::PropertyValue(const std::string& topic, const std::string& payload, int propertyVersion) {
+    Properties props;
     props.propertyVersion = propertyVersion;
-    return MqttMessage(topic, payload, 1, true, props);
+    return Message(topic, payload, 1, true, props);
 }
 
-MqttMessage MqttMessage::PropertyUpdateRequest(const std::string& topic, const std::string& payload,
+Message Message::PropertyUpdateRequest(const std::string& topic, const std::string& payload,
                                                int propertyVersion, const std::vector<std::byte>& correlationData,
                                                const std::string& responseTopic) {
-    MqttProperties props;
+    Properties props;
     props.propertyVersion = propertyVersion;
     props.correlationData = correlationData;
     props.responseTopic = responseTopic;
-    return MqttMessage(topic, payload, 1, false, props);
+    return Message(topic, payload, 1, false, props);
 }
 
-MqttMessage MqttMessage::PropertyUpdateResponse(const std::string& topic, const std::string& payload,
+Message Message::PropertyUpdateResponse(const std::string& topic, const std::string& payload,
                                                 int propertyVersion,
                                                 const std::optional<std::vector<std::byte>>& correlationData,
                                                 stinger::error::MethodReturnCode returnCode,
                                                 const std::string& debugMessage) {
-    MqttProperties props;
+    Properties props;
     props.propertyVersion = propertyVersion;
     props.correlationData = correlationData;
     props.returnCode = static_cast<int>(returnCode);
     props.debugInfo = debugMessage;
-    return MqttMessage(topic, payload, 1, false, props);
+    return Message(topic, payload, 1, false, props);
 }
 
-MqttMessage MqttMessage::PropertyUpdateResponse(const std::string& topic, const std::string& payload,
+Message Message::PropertyUpdateResponse(const std::string& topic, const std::string& payload,
                                                 int propertyVersion,
                                                 const std::optional<std::vector<std::byte>>& correlationData,
                                                 stinger::error::MethodReturnCode returnCode) {
-    MqttProperties props;
+    Properties props;
     props.propertyVersion = propertyVersion;
     props.correlationData = correlationData;
     props.returnCode = static_cast<int>(returnCode);
-    return MqttMessage(topic, payload, 1, false, props);
+    return Message(topic, payload, 1, false, props);
 }
 
-MqttMessage MqttMessage::MethodRequest(const std::string& topic, const std::string& payload,
+Message Message::MethodRequest(const std::string& topic, const std::string& payload,
                                        const std::vector<std::byte>& correlationData,
                                        const std::string& responseTopic) {
-    MqttProperties props;
+    Properties props;
     props.correlationData = correlationData;
     props.responseTopic = responseTopic;
-    return MqttMessage(topic, payload, 2, false, props);
+    return Message(topic, payload, 2, false, props);
 }
 
-MqttMessage MqttMessage::MethodResponse(const std::string& topic, const std::string& payload,
+Message Message::MethodResponse(const std::string& topic, const std::string& payload,
                                         const std::optional<std::vector<std::byte>>& correlationData,
                                         stinger::error::MethodReturnCode returnCode, const std::string& debugMessage) {
-    MqttProperties props;
+    Properties props;
     props.correlationData = correlationData;
     props.returnCode = static_cast<int>(returnCode);
     props.debugInfo = debugMessage;
-    return MqttMessage(topic, payload, 1, false, props);
+    return Message(topic, payload, 1, false, props);
 }
 
-MqttMessage MqttMessage::MethodResponse(const std::string& topic, const std::string& payload,
+Message Message::MethodResponse(const std::string& topic, const std::string& payload,
                                         const std::optional<std::vector<std::byte>>& correlationData,
                                         stinger::error::MethodReturnCode returnCode) {
-    MqttProperties props;
+    Properties props;
     props.correlationData = correlationData;
     props.returnCode = static_cast<int>(returnCode);
-    return MqttMessage(topic, payload, 1, false, props);
+    return Message(topic, payload, 1, false, props);
 }
 
-MqttMessage MqttMessage::ServiceOnline(const std::string& topic, const std::string& payload,
+Message Message::ServiceOnline(const std::string& topic, const std::string& payload,
                                        int messageExpiryInterval) {
-    MqttProperties props;
+    Properties props;
     props.messageExpiryInterval = messageExpiryInterval;
-    return MqttMessage(topic, payload, 1, true, props);
+    return Message(topic, payload, 1, true, props);
 }
 
-MqttMessage MqttMessage::ServiceOffline(const std::string& topic) {
-    return MqttMessage(topic, "", 1, true, MqttProperties());
+Message Message::ServiceOffline(const std::string& topic) {
+    return Message(topic, "", 1, true, Properties());
 }
 
-} // namespace utils
+} // namespace mqtt
 } // namespace stinger

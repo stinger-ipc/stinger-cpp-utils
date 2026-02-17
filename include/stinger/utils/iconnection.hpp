@@ -2,7 +2,7 @@
 #pragma once
 #include <future>
 
-#include "stinger/utils/mqttmessage.hpp"
+#include "stinger/mqtt/message.hpp"
 
 namespace stinger {
 namespace utils {
@@ -20,7 +20,7 @@ public:
      * Implementations should queue up messages when not connected.
      * A future is returned which resolves when the message is received by the broker, depending on QoS.
      */
-    virtual std::future<bool> Publish(const MqttMessage& mqttMsg) = 0;
+    virtual std::future<bool> Publish(const stinger::mqtt::Message& mqttMsg) = 0;
 
     /*! Subscribe to a topic.
      * Implementation should queue up subscriptions when not connected.
@@ -33,7 +33,7 @@ public:
     /*! Provide a callback to be called on an incoming message.
      * Implementation should accept this at any time, even when not connected.
      */
-    virtual CallbackHandleType AddMessageCallback(const std::function<void(const MqttMessage&)>& cb) = 0;
+    virtual CallbackHandleType AddMessageCallback(const std::function<void(const stinger::mqtt::Message&)>& cb) = 0;
 
     virtual void RemoveMessageCallback(CallbackHandleType handle) = 0;
 

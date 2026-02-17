@@ -29,16 +29,16 @@ auto mock = std::make_unique<MockConnection>("test_client");
 mock->Subscribe("sensor/temperature", 1);
 
 // Add callbacks
-auto handle = mock->AddMessageCallback([](const MqttMessage& msg) {
+auto handle = mock->AddMessageCallback([](const mqtt::Message& msg) {
     std::cout << "Received: " << msg.topic << " = " << msg.payload << std::endl;
 });
 
 // Publish messages (they get queued internally)
-auto msg = MqttMessage::Signal("sensor/temperature", "22.5");
+auto msg = mqtt::Message::Signal("sensor/temperature", "22.5");
 mock->Publish(msg);
 
 // Simulate receiving messages (triggers callbacks)
-auto incoming = MqttMessage::Signal("sensor/temperature", "23.0");
+auto incoming = mqtt::Message::Signal("sensor/temperature", "23.0");
 mock->SimulateIncomingMessage(incoming);
 ```
 
@@ -78,9 +78,9 @@ EXPECT_EQ(subs.size(), 1);
 ```cpp
 // Add a callback to capture messages
 bool messageReceived = false;
-MqttMessage receivedMsg;
+mqtt::Message receivedMsg;
 
-mock->AddMessageCallback([&](const MqttMessage& msg) {
+mock->AddMessageCallback([&](const mqtt::Message& msg) {
     messageReceived = true;
     receivedMsg = msg;
 });
@@ -88,7 +88,7 @@ mock->AddMessageCallback([&](const MqttMessage& msg) {
 mock->Subscribe("test/topic", 1);
 
 // Simulate an incoming message
-auto msg = MqttMessage::Signal("test/topic", "hello");
+auto msg = mqtt::Message::Signal("test/topic", "hello");
 mock->SimulateIncomingMessage(msg);
 
 EXPECT_TRUE(messageReceived);
@@ -127,7 +127,7 @@ TEST_F(MyServiceTest, HandlesIncomingMessages) {
     // Subscribe and trigger callback in your service
     
     // Simulate an incoming message
-    auto msg = MqttMessage::Signal("command/topic", "start");
+    auto msg = mqtt::Message::Signal("command/topic", "start");
     mockConnection->SimulateIncomingMessage(msg);
     
     // Verify your service responded correctly

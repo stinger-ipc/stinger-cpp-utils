@@ -1,14 +1,14 @@
-#include "stinger/utils/mqttmessage.hpp"
-#include "stinger/utils/mqttproperties.hpp"
+#include "stinger/mqtt/message.hpp"
+#include "stinger/mqtt/properties.hpp"
 #include <cstddef>
 #include <gtest/gtest.h>
 #include <vector>
 
-using namespace stinger::utils;
+using namespace stinger;
 
-// Test MqttMessage construction
+// Test mqtt::Message construction
 TEST(MqttMessageTest, DefaultConstructor) {
-    MqttMessage msg("test/topic", "test payload");
+    mqtt::Message msg("test/topic", "test payload");
 
     EXPECT_EQ(msg.topic, "test/topic");
     EXPECT_EQ(msg.payload, "test payload");
@@ -17,10 +17,10 @@ TEST(MqttMessageTest, DefaultConstructor) {
 }
 
 TEST(MqttMessageTest, ConstructorWithAllParameters) {
-    MqttProperties props;
+    mqtt::Properties props;
     props.contentType = "application/json";
 
-    MqttMessage msg("test/topic", "test payload", 2, true, props);
+    mqtt::Message msg("test/topic", "test payload", 2, true, props);
 
     EXPECT_EQ(msg.topic, "test/topic");
     EXPECT_EQ(msg.payload, "test payload");
@@ -31,10 +31,10 @@ TEST(MqttMessageTest, ConstructorWithAllParameters) {
 }
 
 TEST(MqttMessageTest, CopyConstructor) {
-    MqttMessage original("test/topic", "payload", 1, true);
+    mqtt::Message original("test/topic", "payload", 1, true);
     original.properties.contentType = "text/plain";
 
-    MqttMessage copy(original);
+    mqtt::Message copy(original);
 
     EXPECT_EQ(copy.topic, original.topic);
     EXPECT_EQ(copy.payload, original.payload);
@@ -46,7 +46,7 @@ TEST(MqttMessageTest, CopyConstructor) {
 
 // Test Signal factory method
 TEST(MqttMessageTest, SignalFactoryMethod) {
-    auto msg = MqttMessage::Signal("sensors/temp", "22.5");
+    auto msg = mqtt::Message::Signal("sensors/temp", "22.5");
 
     EXPECT_EQ(msg.topic, "sensors/temp");
     EXPECT_EQ(msg.payload, "22.5");
@@ -56,7 +56,7 @@ TEST(MqttMessageTest, SignalFactoryMethod) {
 
 // Test PropertyValue factory method
 TEST(MqttMessageTest, PropertyValueFactoryMethod) {
-    auto msg = MqttMessage::PropertyValue("device/status", "online", 5);
+    auto msg = mqtt::Message::PropertyValue("device/status", "online", 5);
 
     EXPECT_EQ(msg.topic, "device/status");
     EXPECT_EQ(msg.payload, "online");
@@ -71,7 +71,7 @@ TEST(MqttMessageTest, PropertyUpdateRequestFactoryMethod) {
     std::vector<std::byte> correlationData = {std::byte{0x01}, std::byte{0x02}, std::byte{0x03}};
     std::string responseTopic = "response/topic";
 
-    auto msg = MqttMessage::PropertyUpdateRequest("prop/update", "new_value", 10, correlationData, responseTopic);
+    auto msg = mqtt::Message::PropertyUpdateRequest("prop/update", "new_value", 10, correlationData, responseTopic);
 
     EXPECT_EQ(msg.topic, "prop/update");
     EXPECT_EQ(msg.payload, "new_value");
@@ -94,7 +94,7 @@ TEST(MqttMessageTest, PropertyUpdateResponseFactoryMethod) {
     std::vector<std::byte> correlationData = {std::byte{0xAA}, std::byte{0xBB}};
 
     auto msg =
-        MqttMessage::PropertyUpdateResponse("prop/response", "success", 7, correlationData, 0, "Update completed");
+        mqtt::Message::PropertyUpdateResponse("prop/response", "success", 7, correlationData, 0, "Update completed");
 
     EXPECT_EQ(msg.topic, "prop/response");
     EXPECT_EQ(msg.payload, "success");
@@ -118,7 +118,7 @@ TEST(MqttMessageTest, PropertyUpdateResponseFactoryMethod) {
 TEST(MqttMessageTest, MethodRequestFactoryMethod) {
     std::vector<std::byte> correlationData = {std::byte{0x11}, std::byte{0x22}, std::byte{0x33}, std::byte{0x44}};
 
-    auto msg = MqttMessage::MethodRequest("method/call", "{\"param\":\"value\"}", correlationData, "method/response");
+    auto msg = mqtt::Message::MethodRequest("method/call", "{\"param\":\"value\"}", correlationData, "method/response");
 
     EXPECT_EQ(msg.topic, "method/call");
     EXPECT_EQ(msg.payload, "{\"param\":\"value\"}");
@@ -136,7 +136,7 @@ TEST(MqttMessageTest, MethodRequestFactoryMethod) {
 TEST(MqttMessageTest, MethodResponseFactoryMethod) {
     std::vector<std::byte> correlationData = {std::byte{0xFF}};
 
-    auto msg = MqttMessage::MethodResponse("method/response", "{\"result\":42}", correlationData, 200, "OK");
+    auto msg = mqtt::Message::MethodResponse("method/response", "{\"result\":42}", correlationData, 200, "OK");
 
     EXPECT_EQ(msg.topic, "method/response");
     EXPECT_EQ(msg.payload, "{\"result\":42}");
@@ -154,9 +154,9 @@ TEST(MqttMessageTest, MethodResponseFactoryMethod) {
     EXPECT_EQ(*msg.properties.debugInfo, "OK");
 }
 
-// Test MqttProperties
+// Test mqtt::Properties
 TEST(MqttPropertiesTest, DefaultConstructor) {
-    MqttProperties props;
+    mqtt::Properties props;
 
     EXPECT_FALSE(props.correlationData.has_value());
     EXPECT_FALSE(props.responseTopic.has_value());
@@ -170,7 +170,7 @@ TEST(MqttPropertiesTest, DefaultConstructor) {
 }
 
 TEST(MqttPropertiesTest, SetProperties) {
-    MqttProperties props;
+    mqtt::Properties props;
 
     props.contentType = "application/json";
     props.messageExpiryInterval = 3600;
@@ -192,7 +192,7 @@ TEST(MqttPropertiesTest, SetProperties) {
 
 // Test edge cases
 TEST(MqttMessageTest, EmptyPayload) {
-    auto msg = MqttMessage::Signal("test/topic", "");
+    auto msg = mqtt::Message::Signal("test/topic", "");
 
     EXPECT_EQ(msg.topic, "test/topic");
     EXPECT_EQ(msg.payload, "");
@@ -201,7 +201,7 @@ TEST(MqttMessageTest, EmptyPayload) {
 TEST(MqttMessageTest, EmptycorrelationData) {
     std::vector<std::byte> emptyId;
 
-    auto msg = MqttMessage::MethodRequest("test/topic", "payload", emptyId, "response");
+    auto msg = mqtt::Message::MethodRequest("test/topic", "payload", emptyId, "response");
 
     ASSERT_TRUE(msg.properties.correlationData.has_value());
     EXPECT_EQ(msg.properties.correlationData->size(), 0);

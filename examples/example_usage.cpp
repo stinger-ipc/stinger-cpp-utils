@@ -1,24 +1,24 @@
-#include "stinger/utils/mqttbrokerconnection.hpp"
-#include "stinger/utils/mqttmessage.hpp"
+#include "stinger/mqtt/brokerconnection.hpp"
+#include "stinger/mqtt/message.hpp"
 #include <chrono>
 #include <iostream>
 #include <memory>
 #include <syslog.h>
 #include <thread>
 
-using namespace stinger::utils;
+using namespace stinger;
 
 int main() {
     // Create MQTT connection to broker
     // Parameters: host, port, clientId
-    auto mqtt = std::make_unique<MqttBrokerConnection>("localhost", 1883, "example_client");
+    auto mqtt = std::make_unique<mqtt::BrokerConnection>("localhost", 1883, "example_client");
 
     // Set up logging (optional)
     mqtt->SetLogFunction([](int level, const char* message) { std::cout << "[MQTT Log] " << message << std::endl; });
     mqtt->SetLogLevel(LOG_DEBUG);
 
     // Add a message callback to handle received messages
-    auto callbackHandle = mqtt->AddMessageCallback([](const MqttMessage& msg) {
+    auto callbackHandle = mqtt->AddMessageCallback([](const mqtt::Message& msg) {
         std::cout << "Received message on topic: " << msg.topic << std::endl;
         std::cout << "Payload: " << msg.payload << std::endl;
 
@@ -42,7 +42,7 @@ int main() {
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
     // Create and publish a message to "hello/publish"
-    auto msg = MqttMessage::Signal("hello/publish", "Hello from example_usage!");
+    auto msg = mqtt::Message::Signal("hello/publish", "Hello from example_usage!");
 
     // Optionally set properties
     msg.properties.contentType = "text/plain";

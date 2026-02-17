@@ -1,4 +1,5 @@
 #include "stinger/utils/mockconnection.hpp"
+#include "stinger/mqtt/message.hpp"
 #include <algorithm>
 #include <cstdarg>
 #include <iostream>
@@ -11,7 +12,7 @@ MockConnection::MockConnection(const std::string& clientId)
 
 MockConnection::~MockConnection() {}
 
-std::future<bool> MockConnection::Publish(const MqttMessage& mqttMsg) {
+std::future<bool> MockConnection::Publish(const stinger::mqtt::Message& mqttMsg) {
     std::lock_guard<std::mutex> lock(_mutex);
     _publishedMessages.push_back(mqttMsg);
 
@@ -39,7 +40,7 @@ void MockConnection::Unsubscribe(const std::string& topic) {
     _subscriptions.erase(topic);
 }
 
-CallbackHandleType MockConnection::AddMessageCallback(const std::function<void(const MqttMessage&)>& cb) {
+CallbackHandleType MockConnection::AddMessageCallback(const std::function<void(const stinger::mqtt::Message&)>& cb) {
     std::lock_guard<std::mutex> lock(_mutex);
     CallbackHandleType handle = _nextCallbackHandle++;
     _callbacks[handle] = cb;
@@ -119,7 +120,7 @@ void MockConnection::Log(int level, const char* fmt, ...) const {
 
 // Testing utility methods
 
-void MockConnection::SimulateIncomingMessage(const MqttMessage& msg) {
+void MockConnection::SimulateIncomingMessage(const stinger::mqtt::Message& msg) {
     std::lock_guard<std::mutex> lock(_mutex);
 
     // Find matching subscriptions and trigger callbacks
@@ -134,14 +135,14 @@ void MockConnection::SimulateIncomingMessage(const MqttMessage& msg) {
     }
 }
 
-std::vector<MqttMessage> MockConnection::GetPublishedMessages() const {
+std::vector<stinger::mqtt::Message> MockConnection::GetPublishedMessages() const {
     std::lock_guard<std::mutex> lock(_mutex);
     return _publishedMessages;
 }
 
-std::vector<MqttMessage> MockConnection::GetPublishedMessages(const std::string& topic) const {
+std::vector<stinger::mqtt::Message> MockConnection::GetPublishedMessages(const std::string& topic) const {
     std::lock_guard<std::mutex> lock(_mutex);
-    std::vector<MqttMessage> result;
+    std::vector<stinger::mqtt::Message> result;
 
     for (const auto& msg : _publishedMessages) {
         if (msg.topic == topic) {

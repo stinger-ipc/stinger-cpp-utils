@@ -1,60 +1,60 @@
 #pragma once
 
 #include "stinger/error/return_codes.hpp"
-#include "stinger/utils/mqttproperties.hpp"
+#include "stinger/mqtt/properties.hpp"
 #include <optional>
 #include <string>
 
 namespace stinger {
-namespace utils {
+namespace mqtt {
 
 /**
  * @brief Represents an MQTT message
  */
-struct MqttMessage {
+struct Message {
     std::string topic;
     std::string payload;
     unsigned qos;
     bool retain;
-    MqttProperties properties;
+    Properties properties;
 
-    MqttMessage(const std::string& topic, const std::string& payload, unsigned qos = 0, bool retain = false,
-                const MqttProperties& props = MqttProperties());
+    Message(const std::string& topic, const std::string& payload, unsigned qos = 0, bool retain = false,
+                const Properties& props = Properties());
 
-    MqttMessage(const MqttMessage& other);
+    Message(const Message& other);
 
-    static MqttMessage Signal(const std::string& topic, const std::string& payload);
+    static Message Signal(const std::string& topic, const std::string& payload);
 
-    static MqttMessage PropertyValue(const std::string& topic, const std::string& payload, int propertyVersion);
+    static Message PropertyValue(const std::string& topic, const std::string& payload, int propertyVersion);
 
-    static MqttMessage PropertyUpdateRequest(const std::string& topic, const std::string& payload, int propertyVersion,
+    static Message PropertyUpdateRequest(const std::string& topic, const std::string& payload, int propertyVersion,
                                              const std::vector<std::byte>& correlationData,
                                              const std::string& responseTopic);
 
-    static MqttMessage PropertyUpdateResponse(const std::string& topic, const std::string& payload, int propertyVersion,
+    static Message PropertyUpdateResponse(const std::string& topic, const std::string& payload, int propertyVersion,
                                               const std::optional<std::vector<std::byte>>& correlationData,
                                               stinger::error::MethodReturnCode returnCode,
                                               const std::string& debugMessage);
 
-    static MqttMessage PropertyUpdateResponse(const std::string& topic, const std::string& payload, int propertyVersion,
+    static Message PropertyUpdateResponse(const std::string& topic, const std::string& payload, int propertyVersion,
                                               const std::optional<std::vector<std::byte>>& correlationData,
                                               stinger::error::MethodReturnCode returnCode);
 
-    static MqttMessage MethodRequest(const std::string& topic, const std::string& payload,
+    static Message MethodRequest(const std::string& topic, const std::string& payload,
                                      const std::vector<std::byte>& correlationData, const std::string& responseTopic);
 
-    static MqttMessage MethodResponse(const std::string& topic, const std::string& payload,
+    static Message MethodResponse(const std::string& topic, const std::string& payload,
                                       const std::optional<std::vector<std::byte>>& correlationData,
                                       stinger::error::MethodReturnCode returnCode, const std::string& debugMessage);
 
-    static MqttMessage MethodResponse(const std::string& topic, const std::string& payload,
+    static Message MethodResponse(const std::string& topic, const std::string& payload,
                                       const std::optional<std::vector<std::byte>>& correlationData,
                                       stinger::error::MethodReturnCode returnCode);
 
-    static MqttMessage ServiceOnline(const std::string& topic, const std::string& payload, int messageExpiryInterval);
+    static Message ServiceOnline(const std::string& topic, const std::string& payload, int messageExpiryInterval);
 
-    static MqttMessage ServiceOffline(const std::string& topic);
+    static Message ServiceOffline(const std::string& topic);
 };
 
-} // namespace utils
+} // namespace mqtt
 } // namespace stinger

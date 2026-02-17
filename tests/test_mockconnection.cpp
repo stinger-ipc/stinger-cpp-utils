@@ -1,8 +1,8 @@
 #include "stinger/utils/mockconnection.hpp"
-#include "stinger/utils/mqttmessage.hpp"
+#include "stinger/mqtt/message.hpp"
 #include <gtest/gtest.h>
 
-using namespace stinger::utils;
+using namespace stinger;
 
 class MockConnectionTest : public ::testing::Test {
 protected:
@@ -12,7 +12,7 @@ protected:
 };
 
 TEST_F(MockConnectionTest, PublishMessage) {
-    auto msg = MqttMessage::Signal("test/topic", "test payload");
+    auto msg = mqtt::Message::Signal("test/topic", "test payload");
     auto future = mock->Publish(msg);
 
     // Should complete immediately
@@ -43,16 +43,16 @@ TEST_F(MockConnectionTest, Unsubscribe) {
 
 TEST_F(MockConnectionTest, MessageCallback) {
     bool callbackCalled = false;
-    MqttMessage receivedMsg;
+    mqtt::Message receivedMsg;
 
-    auto handle = mock->AddMessageCallback([&](const MqttMessage& msg) {
+    auto handle = mock->AddMessageCallback([&](const mqtt::Message& msg) {
         callbackCalled = true;
         receivedMsg = msg;
     });
 
     mock->Subscribe("test/topic", 1);
 
-    auto msg = MqttMessage::Signal("test/topic", "hello");
+    auto msg = mqtt::Message::Signal("test/topic", "hello");
     mock->SimulateIncomingMessage(msg);
 
     EXPECT_TRUE(callbackCalled);
@@ -63,20 +63,20 @@ TEST_F(MockConnectionTest, MessageCallback) {
 TEST_F(MockConnectionTest, WildcardSubscription) {
     bool callbackCalled = false;
 
-    auto handle = mock->AddMessageCallback([&](const MqttMessage& msg) { callbackCalled = true; });
+    auto handle = mock->AddMessageCallback([&](const mqtt::Message& msg) { callbackCalled = true; });
 
     mock->Subscribe("sensor/#", 1);
 
-    auto msg = MqttMessage::Signal("sensor/temperature", "22.5");
+    auto msg = mqtt::Message::Signal("sensor/temperature", "22.5");
     mock->SimulateIncomingMessage(msg);
 
     EXPECT_TRUE(callbackCalled);
 }
 
 TEST_F(MockConnectionTest, GetPublishedMessagesByTopic) {
-    mock->Publish(MqttMessage::Signal("topic1", "msg1"));
-    mock->Publish(MqttMessage::Signal("topic2", "msg2"));
-    mock->Publish(MqttMessage::Signal("topic1", "msg3"));
+    mock->Publish(mqtt::Message::Signal("topic1", "msg1"));
+    mock->Publish(mqtt::Message::Signal("topic2", "msg2"));
+    mock->Publish(mqtt::Message::Signal("topic1", "msg3"));
 
     auto topic1Messages = mock->GetPublishedMessages("topic1");
     ASSERT_EQ(topic1Messages.size(), 2);
@@ -85,7 +85,7 @@ TEST_F(MockConnectionTest, GetPublishedMessagesByTopic) {
 }
 
 TEST_F(MockConnectionTest, ClearPublishedMessages) {
-    mock->Publish(MqttMessage::Signal("test/topic", "test"));
+    mock->Publish(mqtt::Message::Signal("test/topic", "test"));
     ASSERT_EQ(mock->GetPublishedMessages().size(), 1);
 
     mock->ClearPublishedMessages();

@@ -6,10 +6,10 @@
 #include <vector>
 
 namespace stinger {
-namespace utils {
+namespace mqtt {
 
-struct MqttProperties {
-    MqttProperties()
+struct Properties {
+    Properties()
         : correlationData(std::nullopt), responseTopic(std::nullopt), subscriptionId(std::nullopt),
           messageExpiryInterval(std::nullopt), contentType(std::nullopt), debugInfo(std::nullopt),
           returnCode(std::nullopt), propertyVersion(std::nullopt), version(std::nullopt) {}
@@ -25,5 +25,5 @@ struct MqttProperties {
     std::optional<std::string> version;   // Used to specify the version of the method, property, or signal.
 };
 
-} // namespace utils
+} // namespace mqtt
 } // namespace stinger

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "stinger/utils/iconnection.hpp"
-#include "stinger/utils/mqttmessage.hpp"
+#include "stinger/mqtt/message.hpp"
 #include <map>
 #include <mutex>
 #include <queue>
@@ -26,10 +26,10 @@ public:
     virtual ~MockConnection();
 
     // IConnection interface implementation
-    virtual std::future<bool> Publish(const MqttMessage& mqttMsg) override;
+    virtual std::future<bool> Publish(const stinger::mqtt::Message& mqttMsg) override;
     virtual int Subscribe(const std::string& topic, int qos) override;
     virtual void Unsubscribe(const std::string& topic) override;
-    virtual CallbackHandleType AddMessageCallback(const std::function<void(const MqttMessage&)>& cb) override;
+    virtual CallbackHandleType AddMessageCallback(const std::function<void(const stinger::mqtt::Message&)>& cb) override;
     virtual void RemoveMessageCallback(CallbackHandleType handle) override;
     virtual bool TopicMatchesSubscription(const std::string& topic, const std::string& subscr) const override;
     virtual std::string GetClientId() const override;
@@ -39,13 +39,13 @@ public:
     // Testing utility methods
 
     /*! Simulate receiving a message - triggers callbacks for matching subscriptions */
-    void SimulateIncomingMessage(const MqttMessage& msg);
+    void SimulateIncomingMessage(const stinger::mqtt::Message& msg);
 
     /*! Get all published messages */
-    std::vector<MqttMessage> GetPublishedMessages() const;
+    std::vector<stinger::mqtt::Message> GetPublishedMessages() const;
 
     /*! Get published messages for a specific topic */
-    std::vector<MqttMessage> GetPublishedMessages(const std::string& topic) const;
+    std::vector<stinger::mqtt::Message> GetPublishedMessages(const std::string& topic) const;
 
     /*! Clear all published messages */
     void ClearPublishedMessages();
@@ -70,14 +70,14 @@ private:
     mutable std::mutex _mutex;
 
     // Published messages
-    std::vector<MqttMessage> _publishedMessages;
+    std::vector<stinger::mqtt::Message> _publishedMessages;
 
     // Subscriptions
     std::map<std::string, Subscription> _subscriptions;
     int _nextSubscriptionId;
 
     // Callbacks
-    std::map<CallbackHandleType, std::function<void(const MqttMessage&)>> _callbacks;
+    std::map<CallbackHandleType, std::function<void(const stinger::mqtt::Message&)>> _callbacks;
     CallbackHandleType _nextCallbackHandle;
 };
 

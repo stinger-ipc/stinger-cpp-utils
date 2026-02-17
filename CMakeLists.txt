@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(StingerUtils VERSION 0.4.0 LANGUAGES CXX)
+project(StingerUtils VERSION 0.5.0 LANGUAGES CXX)
 
 # Include standard installation directories
 include(GNUInstallDirs)
@@ -31,9 +31,9 @@ set(STINGER_UTILS_HEADERS
     include/stinger/utils/format.hpp
     include/stinger/utils/hash.hpp
     include/stinger/utils/iconnection.hpp
-    include/stinger/utils/mqttbrokerconnection.hpp
-    include/stinger/utils/mqttmessage.hpp
-    include/stinger/utils/mqttproperties.hpp
+    include/stinger/mqtt/brokerconnection.hpp
+    include/stinger/mqtt/message.hpp
+    include/stinger/mqtt/properties.hpp
     include/stinger/utils/uuid.hpp
     include/stinger/error/return_codes.hpp
     $<$<BOOL:${STINGER_UTILS_BUILD_MOCK}>:include/stinger/utils/mockconnection.hpp>
