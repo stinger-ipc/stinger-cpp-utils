@@ -1,5 +1,5 @@
-#include "stinger/utils/mockconnection.hpp"
 #include "stinger/mqtt/message.hpp"
+#include "stinger/utils/mockconnection.hpp"
 #include <gtest/gtest.h>
 
 using namespace stinger;

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "stinger/utils/iconnection.hpp"
 #include "stinger/mqtt/message.hpp"
+#include "stinger/utils/iconnection.hpp"
 #include <map>
 #include <mutex>
 #include <queue>
@@ -29,7 +29,8 @@ public:
     virtual std::future<bool> Publish(const stinger::mqtt::Message& mqttMsg) override;
     virtual int Subscribe(const std::string& topic, int qos) override;
     virtual void Unsubscribe(const std::string& topic) override;
-    virtual CallbackHandleType AddMessageCallback(const std::function<void(const stinger::mqtt::Message&)>& cb) override;
+    virtual CallbackHandleType
+    AddMessageCallback(const std::function<void(const stinger::mqtt::Message&)>& cb) override;
     virtual void RemoveMessageCallback(CallbackHandleType handle) override;
     virtual bool TopicMatchesSubscription(const std::string& topic, const std::string& subscr) const override;
     virtual std::string GetClientId() const override;

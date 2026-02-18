@@ -19,7 +19,7 @@ struct Message {
     Properties properties;
 
     Message(const std::string& topic, const std::string& payload, unsigned qos = 0, bool retain = false,
-                const Properties& props = Properties());
+            const Properties& props = Properties());
 
     Message(const Message& other);
 
@@ -28,28 +28,27 @@ struct Message {
     static Message PropertyValue(const std::string& topic, const std::string& payload, int propertyVersion);
 
     static Message PropertyUpdateRequest(const std::string& topic, const std::string& payload, int propertyVersion,
-                                             const std::vector<std::byte>& correlationData,
-                                             const std::string& responseTopic);
+                                         const std::vector<std::byte>& correlationData,
+                                         const std::string& responseTopic);
 
     static Message PropertyUpdateResponse(const std::string& topic, const std::string& payload, int propertyVersion,
-                                              const std::optional<std::vector<std::byte>>& correlationData,
-                                              stinger::error::MethodReturnCode returnCode,
-                                              const std::string& debugMessage);
+                                          const std::optional<std::vector<std::byte>>& correlationData,
+                                          stinger::error::MethodReturnCode returnCode, const std::string& debugMessage);
 
     static Message PropertyUpdateResponse(const std::string& topic, const std::string& payload, int propertyVersion,
-                                              const std::optional<std::vector<std::byte>>& correlationData,
-                                              stinger::error::MethodReturnCode returnCode);
+                                          const std::optional<std::vector<std::byte>>& correlationData,
+                                          stinger::error::MethodReturnCode returnCode);
 
     static Message MethodRequest(const std::string& topic, const std::string& payload,
-                                     const std::vector<std::byte>& correlationData, const std::string& responseTopic);
+                                 const std::vector<std::byte>& correlationData, const std::string& responseTopic);
 
     static Message MethodResponse(const std::string& topic, const std::string& payload,
-                                      const std::optional<std::vector<std::byte>>& correlationData,
-                                      stinger::error::MethodReturnCode returnCode, const std::string& debugMessage);
+                                  const std::optional<std::vector<std::byte>>& correlationData,
+                                  stinger::error::MethodReturnCode returnCode, const std::string& debugMessage);
 
     static Message MethodResponse(const std::string& topic, const std::string& payload,
-                                      const std::optional<std::vector<std::byte>>& correlationData,
-                                      stinger::error::MethodReturnCode returnCode);
+                                  const std::optional<std::vector<std::byte>>& correlationData,
+                                  stinger::error::MethodReturnCode returnCode);
 
     static Message ServiceOnline(const std::string& topic, const std::string& payload, int messageExpiryInterval);
 

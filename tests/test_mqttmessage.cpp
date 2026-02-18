@@ -52,6 +52,8 @@ TEST(MqttMessageTest, SignalFactoryMethod) {
     EXPECT_EQ(msg.payload, "22.5");
     EXPECT_EQ(msg.qos, 2);
     EXPECT_FALSE(msg.retain);
+    ASSERT_TRUE(msg.properties.contentType.has_value());
+    EXPECT_EQ(*msg.properties.contentType, "application/json");
 }
 
 // Test PropertyValue factory method
@@ -64,6 +66,8 @@ TEST(MqttMessageTest, PropertyValueFactoryMethod) {
     EXPECT_TRUE(msg.retain);
     ASSERT_TRUE(msg.properties.propertyVersion.has_value());
     EXPECT_EQ(*msg.properties.propertyVersion, 5);
+    ASSERT_TRUE(msg.properties.contentType.has_value());
+    EXPECT_EQ(*msg.properties.contentType, "application/json");
 }
 
 // Test PropertyUpdateRequest factory method
@@ -87,6 +91,8 @@ TEST(MqttMessageTest, PropertyUpdateRequestFactoryMethod) {
 
     ASSERT_TRUE(msg.properties.responseTopic.has_value());
     EXPECT_EQ(*msg.properties.responseTopic, "response/topic");
+    ASSERT_TRUE(msg.properties.contentType.has_value());
+    EXPECT_EQ(*msg.properties.contentType, "application/json");
 }
 
 // Test PropertyUpdateResponse factory method
@@ -94,7 +100,7 @@ TEST(MqttMessageTest, PropertyUpdateResponseFactoryMethod) {
     std::vector<std::byte> correlationData = {std::byte{0xAA}, std::byte{0xBB}};
 
     auto msg = mqtt::Message::PropertyUpdateResponse("prop/response", "success", 7, correlationData,
-                                                   stinger::error::MethodReturnCode::SUCCESS, "Update completed");
+                                                     stinger::error::MethodReturnCode::SUCCESS, "Update completed");
 
     EXPECT_EQ(msg.topic, "prop/response");
     EXPECT_EQ(msg.payload, "success");
@@ -112,6 +118,8 @@ TEST(MqttMessageTest, PropertyUpdateResponseFactoryMethod) {
 
     ASSERT_TRUE(msg.properties.debugInfo.has_value());
     EXPECT_EQ(*msg.properties.debugInfo, "Update completed");
+    ASSERT_TRUE(msg.properties.contentType.has_value());
+    EXPECT_EQ(*msg.properties.contentType, "application/json");
 }
 
 // Test MethodRequest factory method
@@ -130,6 +138,8 @@ TEST(MqttMessageTest, MethodRequestFactoryMethod) {
 
     ASSERT_TRUE(msg.properties.responseTopic.has_value());
     EXPECT_EQ(*msg.properties.responseTopic, "method/response");
+    ASSERT_TRUE(msg.properties.contentType.has_value());
+    EXPECT_EQ(*msg.properties.contentType, "application/json");
 }
 
 // Test MethodResponse factory method
@@ -137,7 +147,7 @@ TEST(MqttMessageTest, MethodResponseFactoryMethod) {
     std::vector<std::byte> correlationData = {std::byte{0xFF}};
 
     auto msg = mqtt::Message::MethodResponse("method/response", "{\"result\":42}", correlationData,
-                                           stinger::error::MethodReturnCode::SUCCESS, "OK");
+                                             stinger::error::MethodReturnCode::SUCCESS, "OK");
 
     EXPECT_EQ(msg.topic, "method/response");
     EXPECT_EQ(msg.payload, "{\"result\":42}");
@@ -153,6 +163,8 @@ TEST(MqttMessageTest, MethodResponseFactoryMethod) {
 
     ASSERT_TRUE(msg.properties.debugInfo.has_value());
     EXPECT_EQ(*msg.properties.debugInfo, "OK");
+    ASSERT_TRUE(msg.properties.contentType.has_value());
+    EXPECT_EQ(*msg.properties.contentType, "application/json");
 }
 
 // Test mqtt::Properties
@@ -197,6 +209,8 @@ TEST(MqttMessageTest, EmptyPayload) {
 
     EXPECT_EQ(msg.topic, "test/topic");
     EXPECT_EQ(msg.payload, "");
+    ASSERT_TRUE(msg.properties.contentType.has_value());
+    EXPECT_EQ(*msg.properties.contentType, "application/json");
 }
 
 TEST(MqttMessageTest, EmptycorrelationData) {
@@ -206,4 +220,6 @@ TEST(MqttMessageTest, EmptycorrelationData) {
 
     ASSERT_TRUE(msg.properties.correlationData.has_value());
     EXPECT_EQ(msg.properties.correlationData->size(), 0);
+    ASSERT_TRUE(msg.properties.contentType.has_value());
+    EXPECT_EQ(*msg.properties.contentType, "application/json");
 }

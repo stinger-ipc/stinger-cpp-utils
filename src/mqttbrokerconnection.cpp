@@ -440,5 +440,5 @@ void BrokerConnection::Log(int level, const char* fmt, ...) const {
     }
 }
 
-} // namespace utils
+} // namespace mqtt
 } // namespace stinger

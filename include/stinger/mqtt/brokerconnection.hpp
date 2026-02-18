@@ -1,7 +1,7 @@
 #pragma once
 
-#include "stinger/utils/iconnection.hpp"
 #include "stinger/mqtt/message.hpp"
+#include "stinger/utils/iconnection.hpp"
 #include <mosquitto.h>
 
 #include <future>
@@ -82,8 +82,7 @@ private:
     };
 
     struct PendingPublish {
-        PendingPublish(Message msg)
-            : message(std::move(msg)), pSentPromise(std::make_shared<std::promise<bool>>()) {}
+        PendingPublish(Message msg) : message(std::move(msg)), pSentPromise(std::make_shared<std::promise<bool>>()) {}
         ~PendingPublish() = default;
         Message message;
         std::shared_ptr<std::promise<bool>> pSentPromise;

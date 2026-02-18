@@ -4,7 +4,7 @@ namespace stinger {
 namespace mqtt {
 
 Message::Message(const std::string& topic, const std::string& payload, unsigned qos, bool retain,
-                         const Properties& props)
+                 const Properties& props)
     : topic(topic), payload(payload), qos(qos), retain(retain), properties(props) {}
 
 Message::Message(const Message& other)
@@ -13,7 +13,7 @@ Message::Message(const Message& other)
 Message Message::Signal(const std::string& topic, const std::string& payload) {
     Properties props;
     props.contentType = "application/json";
-    return Message(topic, payload, 2, false, Properties());
+    return Message(topic, payload, 2, false, props);
 }
 
 Message Message::PropertyValue(const std::string& topic, const std::string& payload, int propertyVersion) {
@@ -23,9 +23,9 @@ Message Message::PropertyValue(const std::string& topic, const std::string& payl
     return Message(topic, payload, 1, true, props);
 }
 
-Message Message::PropertyUpdateRequest(const std::string& topic, const std::string& payload,
-                                               int propertyVersion, const std::vector<std::byte>& correlationData,
-                                               const std::string& responseTopic) {
+Message Message::PropertyUpdateRequest(const std::string& topic, const std::string& payload, int propertyVersion,
+                                       const std::vector<std::byte>& correlationData,
+                                       const std::string& responseTopic) {
     Properties props;
     props.contentType = "application/json";
     props.propertyVersion = propertyVersion;
@@ -34,11 +34,9 @@ Message Message::PropertyUpdateRequest(const std::string& topic, const std::stri
     return Message(topic, payload, 1, false, props);
 }
 
-Message Message::PropertyUpdateResponse(const std::string& topic, const std::string& payload,
-                                                int propertyVersion,
-                                                const std::optional<std::vector<std::byte>>& correlationData,
-                                                stinger::error::MethodReturnCode returnCode,
-                                                const std::string& debugMessage) {
+Message Message::PropertyUpdateResponse(const std::string& topic, const std::string& payload, int propertyVersion,
+                                        const std::optional<std::vector<std::byte>>& correlationData,
+                                        stinger::error::MethodReturnCode returnCode, const std::string& debugMessage) {
     Properties props;
     props.contentType = "application/json";
     props.propertyVersion = propertyVersion;
@@ -48,10 +46,9 @@ Message Message::PropertyUpdateResponse(const std::string& topic, const std::str
     return Message(topic, payload, 1, false, props);
 }
 
-Message Message::PropertyUpdateResponse(const std::string& topic, const std::string& payload,
-                                                int propertyVersion,
-                                                const std::optional<std::vector<std::byte>>& correlationData,
-                                                stinger::error::MethodReturnCode returnCode) {
+Message Message::PropertyUpdateResponse(const std::string& topic, const std::string& payload, int propertyVersion,
+                                        const std::optional<std::vector<std::byte>>& correlationData,
+                                        stinger::error::MethodReturnCode returnCode) {
     Properties props;
     props.contentType = "application/json";
     props.propertyVersion = propertyVersion;
@@ -61,8 +58,7 @@ Message Message::PropertyUpdateResponse(const std::string& topic, const std::str
 }
 
 Message Message::MethodRequest(const std::string& topic, const std::string& payload,
-                                       const std::vector<std::byte>& correlationData,
-                                       const std::string& responseTopic) {
+                               const std::vector<std::byte>& correlationData, const std::string& responseTopic) {
     Properties props;
     props.contentType = "application/json";
     props.correlationData = correlationData;
@@ -71,8 +67,8 @@ Message Message::MethodRequest(const std::string& topic, const std::string& payl
 }
 
 Message Message::MethodResponse(const std::string& topic, const std::string& payload,
-                                        const std::optional<std::vector<std::byte>>& correlationData,
-                                        stinger::error::MethodReturnCode returnCode, const std::string& debugMessage) {
+                                const std::optional<std::vector<std::byte>>& correlationData,
+                                stinger::error::MethodReturnCode returnCode, const std::string& debugMessage) {
     Properties props;
     props.contentType = "application/json";
     props.correlationData = correlationData;
@@ -82,8 +78,8 @@ Message Message::MethodResponse(const std::string& topic, const std::string& pay
 }
 
 Message Message::MethodResponse(const std::string& topic, const std::string& payload,
-                                        const std::optional<std::vector<std::byte>>& correlationData,
-                                        stinger::error::MethodReturnCode returnCode) {
+                                const std::optional<std::vector<std::byte>>& correlationData,
+                                stinger::error::MethodReturnCode returnCode) {
     Properties props;
     props.contentType = "application/json";
     props.correlationData = correlationData;
@@ -91,8 +87,7 @@ Message Message::MethodResponse(const std::string& topic, const std::string& pay
     return Message(topic, payload, 1, false, props);
 }
 
-Message Message::ServiceOnline(const std::string& topic, const std::string& payload,
-                                       int messageExpiryInterval) {
+Message Message::ServiceOnline(const std::string& topic, const std::string& payload, int messageExpiryInterval) {
     Properties props;
     props.contentType = "application/json";
     props.messageExpiryInterval = messageExpiryInterval;
