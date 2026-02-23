@@ -16,6 +16,7 @@ enable_testing()
 # Test executable
 add_executable(stinger_utils_tests
     test_mqttmessage.cpp
+    test_conversions.cpp
 )
 
 # Add mock connection tests if enabled

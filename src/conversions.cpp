@@ -21,8 +21,10 @@ std::chrono::time_point<std::chrono::system_clock> parseIsoTimestamp(const std::
         throw std::runtime_error("Failed to parse ISO timestamp: " + isoTimestamp);
     }
 
-    // Convert to time_t and then to time_point
-    std::time_t time = std::mktime(&tm);
+    // Convert to time_t treating the parsed fields as UTC, not local time.
+    // timegm() is the UTC-aware counterpart of mktime(); the 'Z' suffix in ISO
+    // 8601 mandates UTC, so mktime() (which uses the local timezone) is wrong.
+    std::time_t time = timegm(&tm);
     return std::chrono::system_clock::from_time_t(time);
 }
 
