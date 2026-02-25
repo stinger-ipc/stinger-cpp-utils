@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(StingerUtils VERSION 0.5.3 LANGUAGES CXX)
+project(StingerUtils VERSION 0.5.4 LANGUAGES CXX)
 
 # Include standard installation directories
 include(GNUInstallDirs)
