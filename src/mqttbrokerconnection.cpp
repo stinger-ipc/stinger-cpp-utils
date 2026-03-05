@@ -26,7 +26,7 @@ BrokerConnection::BrokerConnection(const std::string& host, int port, const std:
 
     mosquitto_log_callback_set(_mosq, [](struct mosquitto* mosq, void* user, int level, const char* str) {
         BrokerConnection* thisClient = static_cast<BrokerConnection*>(user);
-        thisClient->Log(level, str);
+        thisClient->Log(level, __FILE__, __LINE__, str);
     });
 
     mosquitto_connect_v5_callback_set(_mosq, [](struct mosquitto* mosq, void* user, int rc, int flags,
@@ -40,7 +40,7 @@ BrokerConnection::BrokerConnection(const std::string& host, int port, const std:
             if (mosquitto_property_identifier(prop) == MQTT_PROP_REASON_STRING) {
                 char* reasonString = NULL;
                 if (mosquitto_property_read_string(prop, MQTT_PROP_REASON_STRING, &reasonString, false)) {
-                    thisClient->Log(LOG_INFO, "Connect reason: %s", reasonString);
+                    thisClient->Log(LOG_INFO, __FILE__, __LINE__, "Connect reason: %s", reasonString);
                     free(reasonString);
                 }
             }
@@ -49,7 +49,7 @@ BrokerConnection::BrokerConnection(const std::string& host, int port, const std:
         std::lock_guard<std::mutex> lock(thisClient->_mutex);
         while (!thisClient->_subscriptions.empty()) {
             auto sub = thisClient->_subscriptions.front();
-            thisClient->Log(LOG_INFO, "Delayed Subscribing to %s as %d", sub.topic.c_str(), sub.subscriptionId);
+            thisClient->Log(LOG_INFO, __FILE__, __LINE__, "Delayed Subscribing to %s as %d", sub.topic.c_str(), sub.subscriptionId);
             mosquitto_property* propList = NULL;
             mosquitto_property_add_varint(&propList, MQTT_PROP_SUBSCRIPTION_IDENTIFIER, sub.subscriptionId);
             int rc = mosquitto_subscribe_v5(mosq, NULL, sub.topic.c_str(), sub.qos, MQTT_SUB_OPT_NO_LOCAL, propList);
@@ -59,7 +59,7 @@ BrokerConnection::BrokerConnection(const std::string& host, int port, const std:
         while (!thisClient->_msgQueue.empty()) {
             PendingPublish& pending = thisClient->_msgQueue.front();
             Message& msg = pending.message;
-            thisClient->Log(LOG_INFO, "Publishing queued message to %s", msg.topic.c_str());
+            thisClient->Log(LOG_INFO, __FILE__, __LINE__, "Publishing queued message to %s", msg.topic.c_str());
             mosquitto_property* propList = NULL;
             if (msg.properties.contentType) {
                 mosquitto_property_add_string(&propList, MQTT_PROP_CONTENT_TYPE, msg.properties.contentType->c_str());
@@ -118,7 +118,7 @@ BrokerConnection::BrokerConnection(const std::string& host, int port, const std:
     mosquitto_disconnect_v5_callback_set(
         _mosq, [](struct mosquitto* mosq, void* user, int rc, const mosquitto_property* props) {
             BrokerConnection* thisClient = static_cast<BrokerConnection*>(user);
-            thisClient->Log(LOG_WARNING, "Disconnected from %s with reason code: %d", thisClient->_host.c_str(), rc);
+            thisClient->Log(LOG_WARNING, __FILE__, __LINE__, "Disconnected from %s with reason code: %d", thisClient->_host.c_str(), rc);
 
             // Log any disconnect reason from MQTT v5 properties
             const mosquitto_property* prop;
@@ -126,7 +126,7 @@ BrokerConnection::BrokerConnection(const std::string& host, int port, const std:
                 if (mosquitto_property_identifier(prop) == MQTT_PROP_REASON_STRING) {
                     char* reasonString = NULL;
                     if (mosquitto_property_read_string(prop, MQTT_PROP_REASON_STRING, &reasonString, false)) {
-                        thisClient->Log(LOG_WARNING, "Disconnect reason: %s", reasonString);
+                        thisClient->Log(LOG_WARNING, __FILE__, __LINE__, "Disconnect reason: %s", reasonString);
                         free(reasonString);
                     }
                 }
@@ -136,7 +136,7 @@ BrokerConnection::BrokerConnection(const std::string& host, int port, const std:
     mosquitto_message_v5_callback_set(_mosq, [](struct mosquitto* mosq, void* user,
                                                 const struct mosquitto_message* mmsg, const mosquitto_property* props) {
         BrokerConnection* thisClient = static_cast<BrokerConnection*>(user);
-        thisClient->Log(LOG_DEBUG, "Forwarding message (%s) to %zu callbacks", mmsg->topic,
+        thisClient->Log(LOG_DEBUG, __FILE__, __LINE__, "Forwarding message (%s) to %zu callbacks", mmsg->topic,
                         thisClient->_messageCallbacks.size());
         std::string topic(mmsg->topic);
         std::string payload(static_cast<char*>(mmsg->payload), mmsg->payloadlen);
@@ -202,7 +202,7 @@ BrokerConnection::BrokerConnection(const std::string& host, int port, const std:
         }
         auto msg = Message(topic, payload, mmsg->qos, mmsg->retain, mqttProps);
         for (const auto& entry : thisClient->_messageCallbacks) {
-            thisClient->Log(LOG_DEBUG, "Calling callback (handle=%d) for topic: %s", static_cast<int>(entry.first),
+            thisClient->Log(LOG_DEBUG, __FILE__, __LINE__, "Calling callback (handle=%d) for topic: %s", static_cast<int>(entry.first),
                             topic.c_str());
             const auto& cb = entry.second;
             cb(msg);
@@ -217,7 +217,7 @@ BrokerConnection::BrokerConnection(const std::string& host, int port, const std:
                 found->second->set_value(true);
                 thisClient->_sendMessages.erase(found);
             }
-            thisClient->Log(LOG_DEBUG, "Publish completed for mid=%d, reason_code=%d", mid, reason_code);
+            thisClient->Log(LOG_DEBUG, __FILE__, __LINE__, "Publish completed for mid=%d, reason_code=%d", mid, reason_code);
         });
 
     Connect();
@@ -245,7 +245,7 @@ void BrokerConnection::Connect() {
     // If will_set failed, free the properties we created. On success the
     // mosquitto library takes ownership of the property list, so do not free it.
     if (will_rc != MOSQ_ERR_SUCCESS) {
-        Log(LOG_ERR, "Failed to set will message: %d", will_rc);
+        Log(LOG_ERR, __FILE__, __LINE__, "Failed to set will message: %d", will_rc);
         if (propList) {
             mosquitto_property_free_all(&propList);
             propList = NULL;
@@ -254,7 +254,7 @@ void BrokerConnection::Connect() {
 
     int rc = mosquitto_connect_bind_v5(_mosq, _host.c_str(), _port, 120, NULL, NULL);
     if (rc != MOSQ_ERR_SUCCESS) {
-        Log(LOG_ERR, "Failed to connect to MQTT broker: %d", rc);
+        Log(LOG_ERR, __FILE__, __LINE__, "Failed to connect to MQTT broker: %d", rc);
     }
 }
 
@@ -299,21 +299,21 @@ std::future<bool> BrokerConnection::Publish(const Message& message) {
         mosquitto_property_free_all(&propList);
     }
     if (rc == MOSQ_ERR_NO_CONN) {
-        Log(LOG_DEBUG, "Delayed published queued to: %s", message.topic.c_str());
+        Log(LOG_DEBUG, __FILE__, __LINE__, "Delayed published queued to: %s", message.topic.c_str());
         std::lock_guard<std::mutex> lock(_mutex);
         auto pending = PendingPublish(message);
         auto future = pending.GetFuture();
         _msgQueue.push(pending);
         return future;
     } else if (rc == MOSQ_ERR_SUCCESS) {
-        Log(LOG_INFO, "Published to: %s | %s", message.topic.c_str(), message.payload.c_str());
+        Log(LOG_INFO, __FILE__, __LINE__, "Published to: %s | %s", message.topic.c_str(), message.payload.c_str());
         auto pPromise = std::make_shared<std::promise<bool>>();
         auto future = pPromise->get_future();
         std::lock_guard<std::mutex> lock(_mutex);
         _sendMessages[mid] = std::move(pPromise);
         return future;
     } else {
-        Log(LOG_ERR, "Failed to publish to %s: rc=%d", message.topic.c_str(), rc);
+        Log(LOG_ERR, __FILE__, __LINE__, "Failed to publish to %s: rc=%d", message.topic.c_str(), rc);
     }
     throw std::runtime_error("Unhandled rc");
 }
@@ -326,7 +326,7 @@ int BrokerConnection::Subscribe(const std::string& topic, int qos) {
     if (it != _subscriptionRefCounts.end()) {
         // Topic already subscribed - increment reference count
         it->second.first++;
-        Log(LOG_DEBUG, "Incremented subscription count for %s to %d", topic.c_str(), it->second.first);
+        Log(LOG_DEBUG, __FILE__, __LINE__, "Incremented subscription count for %s to %d", topic.c_str(), it->second.first);
         return it->second.second; // Return existing subscription ID
     }
 
@@ -338,13 +338,13 @@ int BrokerConnection::Subscribe(const std::string& topic, int qos) {
     mosquitto_property_free_all(&propList);
 
     if (rc == MOSQ_ERR_NO_CONN) {
-        Log(LOG_DEBUG, "Subscription %d queued for: %s", subscriptionId, topic.c_str());
+        Log(LOG_DEBUG, __FILE__, __LINE__, "Subscription %d queued for: %s", subscriptionId, topic.c_str());
         BrokerConnection::MqttSubscription sub(topic, qos, subscriptionId);
         _subscriptions.push(sub);
         // Store ref count as 1 for queued subscription
         _subscriptionRefCounts[topic] = std::make_pair(1, subscriptionId);
     } else if (rc == MOSQ_ERR_SUCCESS) {
-        Log(LOG_INFO, "Online Subscribed to %s as %d", topic.c_str(), subscriptionId);
+        Log(LOG_INFO, __FILE__, __LINE__, "Online Subscribed to %s as %d", topic.c_str(), subscriptionId);
         // Store ref count as 1 for active subscription
         _subscriptionRefCounts[topic] = std::make_pair(1, subscriptionId);
     }
@@ -357,7 +357,7 @@ void BrokerConnection::Unsubscribe(const std::string& topic) {
 
     auto it = _subscriptionRefCounts.find(topic);
     if (it == _subscriptionRefCounts.end()) {
-        Log(LOG_WARNING, "Attempted to unsubscribe from topic %s that was never subscribed", topic.c_str());
+        Log(LOG_WARNING, __FILE__, __LINE__, "Attempted to unsubscribe from topic %s that was never subscribed", topic.c_str());
         return;
     }
 
@@ -366,16 +366,16 @@ void BrokerConnection::Unsubscribe(const std::string& topic) {
 
     if (it->second.first > 0) {
         // Still have active references - just decrement
-        Log(LOG_DEBUG, "Decremented subscription count for %s to %d", topic.c_str(), it->second.first);
+        Log(LOG_DEBUG, __FILE__, __LINE__, "Decremented subscription count for %s to %d", topic.c_str(), it->second.first);
         return;
     }
 
     // Reference count reached 0 - perform actual unsubscription
-    Log(LOG_DEBUG, "Unsubscribing from %s (ref count reached 0)", topic.c_str());
+    Log(LOG_DEBUG, __FILE__, __LINE__, "Unsubscribing from %s (ref count reached 0)", topic.c_str());
     int rc = mosquitto_unsubscribe(_mosq, NULL, topic.c_str());
 
     if (rc != MOSQ_ERR_SUCCESS) {
-        Log(LOG_WARNING, "Failed to unsubscribe from %s: rc=%d", topic.c_str(), rc);
+        Log(LOG_WARNING, __FILE__, __LINE__, "Failed to unsubscribe from %s: rc=%d", topic.c_str(), rc);
     }
 
     // Remove from tracking map
@@ -386,7 +386,7 @@ utils::CallbackHandleType BrokerConnection::AddMessageCallback(const std::functi
     std::lock_guard<std::mutex> lock(_mutex);
     utils::CallbackHandleType handle = _nextCallbackHandle++;
     _messageCallbacks[handle] = cb;
-    Log(LOG_DEBUG, "Message callback set with handle %d", handle);
+    Log(LOG_DEBUG, __FILE__, __LINE__, "Message callback set with handle %d", handle);
     return handle;
 }
 
@@ -396,9 +396,9 @@ void BrokerConnection::RemoveMessageCallback(utils::CallbackHandleType handle) {
         auto found = _messageCallbacks.find(handle);
         if (found != _messageCallbacks.end()) {
             _messageCallbacks.erase(found);
-            Log(LOG_DEBUG, "Removed message callback with handle %d", handle);
+            Log(LOG_DEBUG, __FILE__, __LINE__, "Removed message callback with handle %d", handle);
         } else {
-            Log(LOG_WARNING, "No message callback found with handle %d", handle);
+            Log(LOG_WARNING, __FILE__, __LINE__, "No message callback found with handle %d", handle);
         }
     }
 }
@@ -428,7 +428,7 @@ void BrokerConnection::SetLogLevel(int level) {
     _logLevel = level;
 }
 
-void BrokerConnection::Log(int level, const char* fmt, ...) const {
+void BrokerConnection::Log(int level, const char* filename, int lineno, const char* fmt, ...) const {
     if (_logger && (level <= _logLevel)) {
         va_list args;
         va_start(args, fmt);

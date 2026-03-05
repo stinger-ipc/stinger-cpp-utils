@@ -35,7 +35,7 @@ public:
     virtual bool TopicMatchesSubscription(const std::string& topic, const std::string& subscr) const override;
     virtual std::string GetClientId() const override;
     virtual std::string GetOnlineTopic() const override;
-    virtual void Log(int level, const char* fmt, ...) const override;
+    virtual void Log(int level, const char* filename, int lineno, const char* fmt, ...) const override;
 
     // Testing utility methods
 

@@ -63,7 +63,7 @@ public:
 
     virtual void SetLogFunction(const utils::LogFunctionType& logFunc);
     virtual void SetLogLevel(int level);
-    virtual void Log(int level, const char* fmt, ...) const;
+    virtual void Log(int level, const char* filename, int lineno, const char* fmt, ...) const;
 
 protected:
     /*! Establishes the connection to the broker.

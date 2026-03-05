@@ -46,7 +46,7 @@ public:
 
     virtual std::string GetOnlineTopic() const = 0;
 
-    virtual void Log(int level, const char* fmt, ...) const = 0;
+    virtual void Log(int level, const char* filename, int lineno, const char* fmt, ...) const = 0;
 };
 
 } // namespace utils

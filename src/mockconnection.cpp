@@ -107,7 +107,7 @@ std::string MockConnection::GetOnlineTopic() const {
     return _clientId + "/online";
 }
 
-void MockConnection::Log(int level, const char* fmt, ...) const {
+void MockConnection::Log(int level, const char* filename, int lineno, const char* fmt, ...) const {
     // Simple logging implementation
     va_list args;
     va_start(args, fmt);
@@ -115,7 +115,7 @@ void MockConnection::Log(int level, const char* fmt, ...) const {
     vsnprintf(buffer, sizeof(buffer), fmt, args);
     va_end(args);
 
-    std::cout << "[MockConnection] " << buffer << std::endl;
+    std::cout << "[MockConnection] " << filename << ":" << lineno << " " << buffer << std::endl;
 }
 
 // Testing utility methods
