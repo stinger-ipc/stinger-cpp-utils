@@ -14,6 +14,9 @@ using namespace std;
 namespace stinger {
 namespace mqtt {
 
+const int kReconnectDelaySeconds = 1;
+const int kReconnectDelayMaxSeconds = 90;
+
 BrokerConnection::BrokerConnection(const std::string& host, int port, const std::string& clientId)
     : _mosq(NULL), _host(host), _port(port), _clientId(clientId), _logLevel(LOG_NOTICE) {
     std::lock_guard<std::mutex> lock(_mutex);
@@ -23,6 +26,8 @@ BrokerConnection::BrokerConnection(const std::string& host, int port, const std:
     };
     _mosq = mosquitto_new(_clientId.c_str(), false, (void*)this);
     mosquitto_int_option(_mosq, MOSQ_OPT_PROTOCOL_VERSION, MQTT_PROTOCOL_V5);
+    mosquitto_reconnect_delay_set(_mosq, kReconnectDelaySeconds, kReconnectDelayMaxSeconds,
+                                  true /* use exponential backoff */);
 
     mosquitto_log_callback_set(_mosq, [](struct mosquitto* mosq, void* user, int level, const char* str) {
         BrokerConnection* thisClient = static_cast<BrokerConnection*>(user);
@@ -47,6 +52,7 @@ BrokerConnection::BrokerConnection(const std::string& host, int port, const std:
         }
 
         std::lock_guard<std::mutex> lock(thisClient->_mutex);
+        thisClient->_connected = true;
         while (!thisClient->_subscriptions.empty()) {
             auto sub = thisClient->_subscriptions.front();
             thisClient->Log(LOG_INFO, "Delayed Subscribing to %s as %d", sub.topic.c_str(), sub.subscriptionId);
@@ -118,6 +124,7 @@ BrokerConnection::BrokerConnection(const std::string& host, int port, const std:
     mosquitto_disconnect_v5_callback_set(
         _mosq, [](struct mosquitto* mosq, void* user, int rc, const mosquitto_property* props) {
             BrokerConnection* thisClient = static_cast<BrokerConnection*>(user);
+            thisClient->_connected = false;
             thisClient->Log(LOG_WARNING, "Disconnected from %s with reason code: %d", thisClient->_host.c_str(), rc);
 
             // Log any disconnect reason from MQTT v5 properties
@@ -418,6 +425,10 @@ std::string BrokerConnection::GetClientId() const {
 
 std::string BrokerConnection::GetOnlineTopic() const {
     return "client/" + _clientId + "/online";
+}
+
+bool BrokerConnection::IsConnected() const {
+    return _connected;
 }
 
 void BrokerConnection::SetLogFunction(const utils::LogFunctionType& logFunc) {

@@ -6,9 +6,9 @@ using namespace stinger;
 
 class MockConnectionTest : public ::testing::Test {
 protected:
-    void SetUp() override { mock = std::make_unique<MockConnection>("test_client"); }
+    void SetUp() override { mock = std::make_unique<utils::MockConnection>("test_client"); }
 
-    std::unique_ptr<MockConnection> mock;
+    std::unique_ptr<utils::MockConnection> mock;
 };
 
 TEST_F(MockConnectionTest, PublishMessage) {
@@ -43,7 +43,7 @@ TEST_F(MockConnectionTest, Unsubscribe) {
 
 TEST_F(MockConnectionTest, MessageCallback) {
     bool callbackCalled = false;
-    mqtt::Message receivedMsg;
+    mqtt::Message receivedMsg("", "");
 
     auto handle = mock->AddMessageCallback([&](const mqtt::Message& msg) {
         callbackCalled = true;

@@ -4,6 +4,7 @@
 #include "stinger/utils/iconnection.hpp"
 #include <mosquitto.h>
 
+#include <atomic>
 #include <future>
 #include <map>
 #include <mutex>
@@ -61,6 +62,11 @@ public:
 
     virtual std::string GetOnlineTopic() const;
 
+    /*! Returns whether the client is currently connected to the broker.
+     * \return true if connected.
+     */
+    virtual bool IsConnected() const;
+
     virtual void SetLogFunction(const utils::LogFunctionType& logFunc);
     virtual void SetLogLevel(int level);
     virtual void Log(int level, const char* fmt, ...) const;
@@ -106,6 +112,7 @@ private:
 
     utils::LogFunctionType _logger;
     int _logLevel = 0;
+    std::atomic<bool> _connected = false;
 };
 
 } // namespace mqtt
