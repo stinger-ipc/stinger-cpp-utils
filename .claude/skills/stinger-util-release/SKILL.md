@@ -72,6 +72,8 @@ Show the user the current version and ask which component to bump:
 
 If they choose to bump, edit the `project()` line in `CMakeLists.txt` with the new version. Use a precise string replacement — only change the VERSION value on that specific line.
 
+Note whether the bump was **major** or **minor** — a git tag will be created after the commit in that case (see Step 6.5).
+
 After bumping, rebuild to make sure the version change didn't break anything:
 
 ```bash
@@ -108,6 +110,28 @@ git commit -m "<approved message>"
 
 ---
 
+## Step 6.5 — Tag the release (major or minor bumps on `main` only)
+
+If the version bump was **major** or **minor**, first check the current branch:
+
+```bash
+git rev-parse --abbrev-ref HEAD
+```
+
+If the branch is `main`, create an annotated git tag pointing to the commit just made:
+
+```bash
+git tag -a vX.Y.Z -m "Release vX.Y.Z"
+```
+
+Replace `X.Y.Z` with the new version number. Tell the user the tag was created.
+
+If the branch is **not** `main`, skip tagging and inform the user that no tag was created because they are not on `main`.
+
+Skip this step entirely for patch bumps and when no version bump was made.
+
+---
+
 ## Step 7 — Push
 
 Ask the user if they'd like to push to origin. If yes:
@@ -116,4 +140,24 @@ Ask the user if they'd like to push to origin. If yes:
 git push origin HEAD
 ```
 
-If they decline, let them know the commit is local and they can push later when ready.
+If a tag was created in Step 6.5, also push it:
+
+```bash
+git push origin vX.Y.Z
+```
+
+If they decline, let them know the commit (and tag, if created) are local and they can push later when ready.
+
+---
+
+## Step 8 — Open a pull request (non-`main` branches only)
+
+If the current branch is **not** `main`, ask the user if they would like a GitHub pull request created to merge the current branch into `main`. If they say yes, create the PR using the GitHub CLI:
+
+```bash
+gh pr create --base main --title "<commit message>" --body ""
+```
+
+Use the commit message from Step 6 as the PR title. Report the PR URL back to the user once created.
+
+Skip this step when on `main`.
