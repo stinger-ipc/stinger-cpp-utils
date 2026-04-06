@@ -4,11 +4,13 @@
 #include "stinger/utils/iconnection.hpp"
 #include <mosquitto.h>
 
+#include <condition_variable>
 #include <future>
 #include <map>
 #include <mutex>
 #include <queue>
 #include <string>
+#include <thread>
 #include <vector>
 
 namespace stinger {
@@ -106,6 +108,14 @@ private:
 
     utils::LogFunctionType _logger;
     int _logLevel = 0;
+
+    std::queue<Message> _dispatchQueue;
+    std::mutex _dispatchMutex;
+    std::condition_variable _dispatchCv;
+    bool _dispatchRunning = false;
+    std::thread _dispatchThread;
+
+    void DispatchLoop();
 };
 
 } // namespace mqtt

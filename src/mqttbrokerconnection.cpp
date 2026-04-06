@@ -136,8 +136,6 @@ BrokerConnection::BrokerConnection(const std::string& host, int port, const std:
     mosquitto_message_v5_callback_set(_mosq, [](struct mosquitto* mosq, void* user,
                                                 const struct mosquitto_message* mmsg, const mosquitto_property* props) {
         BrokerConnection* thisClient = static_cast<BrokerConnection*>(user);
-        thisClient->Log(LOG_DEBUG, __FILE__, __LINE__, "Forwarding message (%s) to %zu callbacks", mmsg->topic,
-                        thisClient->_messageCallbacks.size());
         std::string topic(mmsg->topic);
         std::string payload(static_cast<char*>(mmsg->payload), mmsg->payloadlen);
         mqtt::Properties mqttProps;
@@ -201,32 +199,45 @@ BrokerConnection::BrokerConnection(const std::string& host, int port, const std:
             }
         }
         auto msg = Message(topic, payload, mmsg->qos, mmsg->retain, mqttProps);
-        for (const auto& entry : thisClient->_messageCallbacks) {
-            thisClient->Log(LOG_DEBUG, __FILE__, __LINE__, "Calling callback (handle=%d) for topic: %s", static_cast<int>(entry.first),
-                            topic.c_str());
-            const auto& cb = entry.second;
-            cb(msg);
+        {
+            std::lock_guard<std::mutex> dispatchLock(thisClient->_dispatchMutex);
+            thisClient->_dispatchQueue.push(msg);
         }
+        thisClient->_dispatchCv.notify_one();
     });
 
     mosquitto_publish_v5_callback_set(
         _mosq, [](struct mosquitto* mosq, void* user, int mid, int reason_code, const mosquitto_property* props) {
             BrokerConnection* thisClient = static_cast<BrokerConnection*>(user);
-            auto found = thisClient->_sendMessages.find(mid);
-            if (found != thisClient->_sendMessages.end()) {
-                found->second->set_value(true);
-                thisClient->_sendMessages.erase(found);
+            {
+                std::lock_guard<std::mutex> lock(thisClient->_mutex);
+                auto found = thisClient->_sendMessages.find(mid);
+                if (found != thisClient->_sendMessages.end()) {
+                    found->second->set_value(true);
+                    thisClient->_sendMessages.erase(found);
+                }
             }
             thisClient->Log(LOG_DEBUG, __FILE__, __LINE__, "Publish completed for mid=%d, reason_code=%d", mid, reason_code);
         });
+
+    _dispatchRunning = true;
+    _dispatchThread = std::thread(&BrokerConnection::DispatchLoop, this);
 
     Connect();
     mosquitto_loop_start(_mosq);
 }
 
 BrokerConnection::~BrokerConnection() {
-    std::lock_guard<std::mutex> lock(_mutex);
     mosquitto_loop_stop(_mosq, true);
+
+    {
+        std::lock_guard<std::mutex> dispatchLock(_dispatchMutex);
+        _dispatchRunning = false;
+    }
+    _dispatchCv.notify_one();
+    _dispatchThread.join();
+
+    std::lock_guard<std::mutex> lock(_mutex);
     mosquitto_disconnect(_mosq);
     mosquitto_destroy(_mosq);
     mosquitto_lib_cleanup();
@@ -437,6 +448,37 @@ void BrokerConnection::Log(int level, const char* filename, int lineno, const ch
         std::string msg(buf);
         va_end(args);
         _logger(level, msg.c_str());
+    }
+}
+
+void BrokerConnection::DispatchLoop() {
+    while (true) {
+        std::unique_lock<std::mutex> dispatchLock(_dispatchMutex);
+        _dispatchCv.wait(dispatchLock, [this] { return !_dispatchQueue.empty() || !_dispatchRunning; });
+
+        while (!_dispatchQueue.empty()) {
+            Message msg = std::move(_dispatchQueue.front());
+            _dispatchQueue.pop();
+            dispatchLock.unlock();
+
+            std::vector<std::pair<utils::CallbackHandleType, std::function<void(const Message&)>>> callbacks;
+            {
+                std::lock_guard<std::mutex> lock(_mutex);
+                callbacks.assign(_messageCallbacks.begin(), _messageCallbacks.end());
+            }
+
+            for (const auto& entry : callbacks) {
+                Log(LOG_DEBUG, __FILE__, __LINE__, "Calling callback (handle=%d) for topic: %s",
+                    static_cast<int>(entry.first), msg.topic.c_str());
+                entry.second(msg);
+            }
+
+            dispatchLock.lock();
+        }
+
+        if (!_dispatchRunning) {
+            break;
+        }
     }
 }
 
