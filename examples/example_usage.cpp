@@ -14,7 +14,7 @@ int main() {
     auto mqtt = std::make_unique<mqtt::BrokerConnection>("localhost", 1883, "example_client");
 
     // Set up logging (optional)
-    mqtt->SetLogFunction([](int level, const char* message) { std::cout << "[MQTT Log] " << message << std::endl; });
+    mqtt->SetLogPlusFunction([](int level, const char* filename, int lineno, const char* message) { std::cout << "[" << filename << ":" << lineno << "] " << message << std::endl; });
     mqtt->SetLogLevel(LOG_DEBUG);
 
     // Add a message callback to handle received messages

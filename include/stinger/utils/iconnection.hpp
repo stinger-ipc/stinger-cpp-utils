@@ -12,6 +12,7 @@ namespace utils {
  */
 
 typedef std::function<void(int, const char*)> LogFunctionType;
+typedef std::function<void(int, const char*, int, const char*)> LogPlusFunctionType;
 typedef int CallbackHandleType;
 
 class IConnection {
@@ -46,7 +47,9 @@ public:
 
     virtual std::string GetOnlineTopic() const = 0;
 
-    virtual void Log(int level, const char* filename, int lineno, const char* fmt, ...) const = 0;
+    virtual void Log(int level, const char* fmt, ...) const {};
+    virtual void LogPlus(int level, const char* filename, int lineno, const char* fmt, ...) const {};
+
 };
 
 } // namespace utils

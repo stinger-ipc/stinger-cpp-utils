@@ -26,7 +26,8 @@ BrokerConnection::BrokerConnection(const std::string& host, int port, const std:
 
     mosquitto_log_callback_set(_mosq, [](struct mosquitto* mosq, void* user, int level, const char* str) {
         BrokerConnection* thisClient = static_cast<BrokerConnection*>(user);
-        thisClient->Log(level, __FILE__, __LINE__, str);
+        thisClient->Log(level, str);
+        thisClient->LogPlus(level, __FILE__, __LINE__, str);
     });
 
     mosquitto_connect_v5_callback_set(_mosq, [](struct mosquitto* mosq, void* user, int rc, int flags,
@@ -435,11 +436,15 @@ void BrokerConnection::SetLogFunction(const utils::LogFunctionType& logFunc) {
     _logger = logFunc;
 }
 
+void BrokerConnection::SetLogPlusFunction(const utils::LogPlusFunctionType& logFunc) {
+    _loggerPlus = logFunc;
+}
+
 void BrokerConnection::SetLogLevel(int level) {
     _logLevel = level;
 }
 
-void BrokerConnection::Log(int level, const char* filename, int lineno, const char* fmt, ...) const {
+void BrokerConnection::Log(int level, const char* fmt, ...) const {
     if (_logger && (level <= _logLevel)) {
         va_list args;
         va_start(args, fmt);
@@ -447,7 +452,23 @@ void BrokerConnection::Log(int level, const char* filename, int lineno, const ch
         vsnprintf(buf, sizeof(buf), fmt, args);
         std::string msg(buf);
         va_end(args);
-        _logger(level, msg.c_str());
+        if (_logger) {
+            _logger(level, msg.c_str());
+        }
+    }
+}
+
+void BrokerConnection::LogPlus(int level, const char* filename, int lineno, const char* fmt, ...) const {
+    if (_loggerPlus && (level <= _logLevel)) {
+        va_list args;
+        va_start(args, fmt);
+        char buf[256];
+        vsnprintf(buf, sizeof(buf), fmt, args);
+        std::string msg(buf);
+        va_end(args);
+        if (_loggerPlus) {
+            _loggerPlus(level, filename, lineno, msg.c_str());
+        }
     }
 }
 

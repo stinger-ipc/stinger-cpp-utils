@@ -64,8 +64,10 @@ public:
     virtual std::string GetOnlineTopic() const;
 
     virtual void SetLogFunction(const utils::LogFunctionType& logFunc);
+    virtual void SetLogPlusFunction(const utils::LogPlusFunctionType& logFunc);
     virtual void SetLogLevel(int level);
-    virtual void Log(int level, const char* filename, int lineno, const char* fmt, ...) const;
+    virtual void Log(int level, const char* fmt, ...) const;
+    virtual void LogPlus(int level, const char* filename, int lineno, const char* fmt, ...) const;
 
 protected:
     /*! Establishes the connection to the broker.
@@ -107,6 +109,7 @@ private:
     std::map<std::string, std::pair<int, int>> _subscriptionRefCounts;
 
     utils::LogFunctionType _logger;
+    utils::LogPlusFunctionType _loggerPlus;
     int _logLevel = 0;
 
     std::queue<Message> _dispatchQueue;
