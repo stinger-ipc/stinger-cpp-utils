@@ -174,7 +174,7 @@ BrokerConnection::BrokerConnection(const std::string& host, int port, const std:
                 char* name = NULL;
                 char* value = NULL;
                 if (mosquitto_property_read_string_pair(prop, MQTT_PROP_USER_PROPERTY, &name, &value, false)) {
-                    if (strcmp(name, "ReturnValue") == 0) {
+                    if (strcmp(name, "ReturnCode") == 0) {
                         int returnValueInt = std::stoi(value);
                         mqttProps.returnCode = returnValueInt;
                     } else if (strcmp(name, "PropertyVersion") == 0) {

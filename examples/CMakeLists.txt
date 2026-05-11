@@ -11,3 +11,15 @@ target_include_directories(example_usage
     PRIVATE
         ${CMAKE_SOURCE_DIR}/include
 )
+
+add_executable(receiver receiver.cpp)
+
+target_link_libraries(receiver
+    PRIVATE
+        stinger_utils
+)
+
+target_include_directories(receiver
+    PRIVATE
+        ${CMAKE_SOURCE_DIR}/include
+)
