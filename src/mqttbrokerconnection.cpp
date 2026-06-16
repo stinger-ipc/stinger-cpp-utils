@@ -18,7 +18,7 @@ namespace stinger {
 namespace mqtt {
 
 const int kReconnectDelaySeconds = 1;
-const int kReconnectDelayMaxSeconds = 90;
+const int kReconnectDelayMaxSeconds = 30;
 
 BrokerConnection::BrokerConnection(const std::string& host, int port, const std::string& clientId)
     : _mosq(NULL), _host(host), _port(port), _clientId(clientId), _logLevel(LOG_NOTICE) {
@@ -29,8 +29,7 @@ BrokerConnection::BrokerConnection(const std::string& host, int port, const std:
     };
     _mosq = mosquitto_new(_clientId.c_str(), false, (void*)this);
     mosquitto_int_option(_mosq, MOSQ_OPT_PROTOCOL_VERSION, MQTT_PROTOCOL_V5);
-    mosquitto_reconnect_delay_set(_mosq, kReconnectDelaySeconds, kReconnectDelayMaxSeconds,
-                                  true /* use exponential backoff */);
+    ConfigureReconnectDelay();
 
     mosquitto_log_callback_set(_mosq, [](struct mosquitto* mosq, void* user, int level, const char* str) {
         BrokerConnection* thisClient = static_cast<BrokerConnection*>(user);
@@ -264,6 +263,11 @@ BrokerConnection::~BrokerConnection() {
     mosquitto_disconnect(_mosq);
     mosquitto_destroy(_mosq);
     mosquitto_lib_cleanup();
+}
+
+void BrokerConnection::ConfigureReconnectDelay() {
+    mosquitto_reconnect_delay_set(_mosq, kReconnectDelaySeconds, kReconnectDelayMaxSeconds,
+                                  false /* use incremental backoff */);
 }
 
 void BrokerConnection::Connect() {

@@ -78,6 +78,11 @@ public:
     virtual void Log(int level, const char* fmt, ...) const;
 
 protected:
+    /*! Configures the reconnect delay settings for the mosquitto connection.
+     * Can be overridden by subclasses to customize reconnect behavior.
+     */
+    virtual void ConfigureReconnectDelay();
+
     /*! Establishes the connection to the broker.
      */
     virtual void Connect();
