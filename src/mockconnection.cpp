@@ -103,8 +103,16 @@ std::string MockConnection::GetClientId() const {
     return _clientId;
 }
 
-std::string MockConnection::GetOnlineTopic() const {
+std::string MockConnection::GetLastWillTopic() const {
     return _clientId + "/online";
+}
+
+std::string MockConnection::GetOnlinePayload() const {
+    return "{\"status\":\"online\"}";
+}
+
+std::string MockConnection::GetOfflinePayload() const {
+    return "{\"status\":\"offline\"}";
 }
 
 void MockConnection::Log(int level, const char* fmt, ...) const {

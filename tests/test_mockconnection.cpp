@@ -96,8 +96,16 @@ TEST_F(MockConnectionTest, GetClientId) {
     EXPECT_EQ(mock->GetClientId(), "test_client");
 }
 
-TEST_F(MockConnectionTest, GetOnlineTopic) {
-    EXPECT_EQ(mock->GetOnlineTopic(), "test_client/online");
+TEST_F(MockConnectionTest, GetLastWillTopic) {
+    EXPECT_EQ(mock->GetLastWillTopic(), "test_client/online");
+}
+
+TEST_F(MockConnectionTest, GetOnlinePayload) {
+    EXPECT_EQ(mock->GetOnlinePayload(), "{\"status\":\"online\"}");
+}
+
+TEST_F(MockConnectionTest, GetOfflinePayload) {
+    EXPECT_EQ(mock->GetOfflinePayload(), "{\"status\":\"offline\"}");
 }
 
 TEST_F(MockConnectionTest, TopicMatching) {

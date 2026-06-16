@@ -34,7 +34,9 @@ public:
     virtual void RemoveMessageCallback(CallbackHandleType handle) override;
     virtual bool TopicMatchesSubscription(const std::string& topic, const std::string& subscr) const override;
     virtual std::string GetClientId() const override;
-    virtual std::string GetOnlineTopic() const override;
+    virtual std::string GetLastWillTopic() const override;
+    virtual std::string GetOnlinePayload() const override;
+    virtual std::string GetOfflinePayload() const override;
     virtual void Log(int level, const char* fmt, ...) const override;
 
     // Testing utility methods

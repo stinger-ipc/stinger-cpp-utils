@@ -5,11 +5,13 @@
 #include <mosquitto.h>
 
 #include <atomic>
+#include <condition_variable>
 #include <future>
 #include <map>
 #include <mutex>
 #include <queue>
 #include <string>
+#include <thread>
 #include <vector>
 
 namespace stinger {
@@ -60,7 +62,11 @@ public:
 
     virtual std::string GetClientId() const;
 
-    virtual std::string GetOnlineTopic() const;
+    virtual std::string GetLastWillTopic() const;
+
+    virtual std::string GetOnlinePayload() const;
+
+    virtual std::string GetOfflinePayload() const;
 
     /*! Returns whether the client is currently connected to the broker.
      * \return true if connected.
@@ -75,6 +81,8 @@ protected:
     /*! Establishes the connection to the broker.
      */
     virtual void Connect();
+
+    std::string _clientId;
 
 private:
     // Represents an MQTT subscription, so that it can be queued before connection.
@@ -98,7 +106,7 @@ private:
     mosquitto* _mosq;
     std::string _host;
     int _port;
-    std::string _clientId;
+
     int _nextSubscriptionId = 1;
     std::queue<MqttSubscription> _subscriptions;
     std::mutex _mutex;
@@ -113,6 +121,11 @@ private:
     utils::LogFunctionType _logger;
     int _logLevel = 0;
     std::atomic<bool> _connected = false;
+
+    std::thread _onlinePublishThread;
+    std::mutex _onlinePublishMutex;
+    std::condition_variable _onlinePublishCv;
+    std::atomic<bool> _stopOnlinePublish{false};
 };
 
 } // namespace mqtt

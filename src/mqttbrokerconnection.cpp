@@ -1,13 +1,16 @@
 #include "stinger/mqtt/brokerconnection.hpp"
 #include <algorithm>
 #include <cctype>
+#include <chrono>
 #include <cstdarg>
 #include <cstring>
 #include <iostream>
 #include <mosquitto.h>
 #include <mqtt_protocol.h>
 #include <sstream>
+#include <string>
 #include <syslog.h>
+#include <thread>
 
 using namespace std;
 
@@ -110,12 +113,13 @@ BrokerConnection::BrokerConnection(const std::string& host, int port, const std:
         }
 
         { // Send online message
-            auto onlineTopic = thisClient->GetOnlineTopic();
+            auto onlineTopic = thisClient->GetLastWillTopic();
             int mid;
             mosquitto_property* propList = NULL;
             mosquitto_property_add_string(&propList, MQTT_PROP_CONTENT_TYPE, "application/json");
-            const char* onlinePayload = "{\"status\":\"online\"}";
-            mosquitto_publish_v5(mosq, &mid, onlineTopic.c_str(), sizeof(onlinePayload), onlinePayload, 1, true,
+            mosquitto_property_add_int32(&propList, MQTT_PROP_MESSAGE_EXPIRY_INTERVAL, 10 * 60);
+            std::string onlinePayload = thisClient->GetOnlinePayload();
+            mosquitto_publish_v5(mosq, &mid, onlineTopic.c_str(), onlinePayload.size(), onlinePayload.c_str(), 1, true,
                                  propList);
             mosquitto_property_free_all(&propList);
         }
@@ -229,9 +233,32 @@ BrokerConnection::BrokerConnection(const std::string& host, int port, const std:
 
     Connect();
     mosquitto_loop_start(_mosq);
+
+    _onlinePublishThread = std::thread([this]() {
+        std::unique_lock<std::mutex> lock(_onlinePublishMutex);
+        while (!_stopOnlinePublish) {
+            _onlinePublishCv.wait_for(lock, std::chrono::minutes(5), [this] { return _stopOnlinePublish.load(); });
+            if (_stopOnlinePublish)
+                break;
+            if (_connected) {
+                auto topic = GetLastWillTopic();
+                auto payload = GetOnlinePayload();
+                int mid;
+                mosquitto_property* propList = NULL;
+                mosquitto_property_add_string(&propList, MQTT_PROP_CONTENT_TYPE, "application/json");
+                mosquitto_property_add_int32(&propList, MQTT_PROP_MESSAGE_EXPIRY_INTERVAL, 10 * 60);
+                mosquitto_publish_v5(_mosq, &mid, topic.c_str(), payload.size(), payload.c_str(), 1, true, propList);
+                mosquitto_property_free_all(&propList);
+            }
+        }
+    });
 }
 
 BrokerConnection::~BrokerConnection() {
+    _stopOnlinePublish = true;
+    _onlinePublishCv.notify_one();
+    _onlinePublishThread.join();
+
     std::lock_guard<std::mutex> lock(_mutex);
     mosquitto_loop_stop(_mosq, true);
     mosquitto_disconnect(_mosq);
@@ -240,11 +267,13 @@ BrokerConnection::~BrokerConnection() {
 }
 
 void BrokerConnection::Connect() {
-    auto onlineTopic = GetOnlineTopic();
+    auto onlineTopic = GetLastWillTopic();
     mosquitto_property* propList = NULL;
     mosquitto_property_add_string(&propList, MQTT_PROP_CONTENT_TYPE, "application/json");
-    const char* offlinePayload = "{\"status\":\"offline\"}";
-    int will_rc = mosquitto_will_set_v5(_mosq, onlineTopic.c_str(), sizeof(offlinePayload), offlinePayload,
+    // Set message expiry interval for LWT to 24 hours (in seconds)
+    mosquitto_property_add_int32(&propList, MQTT_PROP_MESSAGE_EXPIRY_INTERVAL, 24 * 60 * 60);
+    std::string offlinePayload = GetOfflinePayload();
+    int will_rc = mosquitto_will_set_v5(_mosq, onlineTopic.c_str(), offlinePayload.size(), offlinePayload.c_str(),
                                         1,    // qos
                                         true, // retain
                                         propList);
@@ -423,8 +452,16 @@ std::string BrokerConnection::GetClientId() const {
     return _clientId;
 }
 
-std::string BrokerConnection::GetOnlineTopic() const {
-    return "client/" + _clientId + "/online";
+std::string BrokerConnection::GetLastWillTopic() const {
+    return "client/"s + _clientId + "/online";
+}
+
+std::string BrokerConnection::GetOnlinePayload() const {
+    return "{\"status\":\"online\"}"s;
+}
+
+std::string BrokerConnection::GetOfflinePayload() const {
+    return "{\"status\":\"offline\"}"s;
 }
 
 bool BrokerConnection::IsConnected() const {

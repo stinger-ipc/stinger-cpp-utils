@@ -42,10 +42,31 @@ public:
      */
     virtual bool TopicMatchesSubscription(const std::string& topic, const std::string& subscr) const = 0;
 
+    /*!
+     * Get the client ID of the connection.
+     */
     virtual std::string GetClientId() const = 0;
 
-    virtual std::string GetOnlineTopic() const = 0;
+    /*!
+     * Get the topic for the last will message.
+     */
+    virtual std::string GetLastWillTopic() const = 0;
 
+    /*!
+     * Get the payload for the online message.  This will be automatically published to the Last Will topic when
+     * connected and periodically.
+     */
+    virtual std::string GetOnlinePayload() const = 0;
+
+    /*!
+     * Get the payload for the offline message.  This will be used as the last will message, and will be published (by
+     * the broker) to the Last Will topic if the client disconnects unexpectedly.
+     */
+    virtual std::string GetOfflinePayload() const = 0;
+
+    /*!
+     * Log a message with the given level and format.
+     */
     virtual void Log(int level, const char* fmt, ...) const = 0;
 };
 
