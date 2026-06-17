@@ -127,10 +127,12 @@ private:
     int _logLevel = 0;
     std::atomic<bool> _connected = false;
 
+#ifdef STINGER_ONLINE_PUBLISH_THREAD
     std::thread _onlinePublishThread;
     std::mutex _onlinePublishMutex;
     std::condition_variable _onlinePublishCv;
     std::atomic<bool> _stopOnlinePublish{false};
+#endif
 };
 
 } // namespace mqtt

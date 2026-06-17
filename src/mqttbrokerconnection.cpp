@@ -116,7 +116,9 @@ BrokerConnection::BrokerConnection(const std::string& host, int port, const std:
             int mid;
             mosquitto_property* propList = NULL;
             mosquitto_property_add_string(&propList, MQTT_PROP_CONTENT_TYPE, "application/json");
+#ifdef STINGER_ONLINE_PUBLISH_THREAD
             mosquitto_property_add_int32(&propList, MQTT_PROP_MESSAGE_EXPIRY_INTERVAL, 10 * 60);
+#endif
             std::string onlinePayload = thisClient->GetOnlinePayload();
             mosquitto_publish_v5(mosq, &mid, onlineTopic.c_str(), onlinePayload.size(), onlinePayload.c_str(), 1, true,
                                  propList);
@@ -233,6 +235,7 @@ BrokerConnection::BrokerConnection(const std::string& host, int port, const std:
     Connect();
     mosquitto_loop_start(_mosq);
 
+#ifdef STINGER_ONLINE_PUBLISH_THREAD
     _onlinePublishThread = std::thread([this]() {
         std::unique_lock<std::mutex> lock(_onlinePublishMutex);
         while (!_stopOnlinePublish) {
@@ -251,12 +254,15 @@ BrokerConnection::BrokerConnection(const std::string& host, int port, const std:
             }
         }
     });
+#endif
 }
 
 BrokerConnection::~BrokerConnection() {
+#ifdef STINGER_ONLINE_PUBLISH_THREAD
     _stopOnlinePublish = true;
     _onlinePublishCv.notify_one();
     _onlinePublishThread.join();
+#endif
 
     std::lock_guard<std::mutex> lock(_mutex);
     mosquitto_loop_stop(_mosq, true);
