@@ -51,6 +51,7 @@ cmake --build .
 - `STINGER_UTILS_BUILD_EXAMPLES` - Build examples (default: ON)
 - `STINGER_UTILS_BUILD_MOCK` - Build mock connection for testing (default: OFF)
 - `BUILD_SHARED_LIBS` - Build shared library (default: OFF)
+- `STINGER_ONLINE_PUBLISH_THREAD` - Enable periodic online status publishing thread (default: OFF)
 
 Example with custom options:
 ```bash
