@@ -53,6 +53,12 @@ public:
     virtual std::string GetLastWillTopic() const = 0;
 
     /*!
+     * Get the topic for the online message.
+     * @deprecated Use GetLastWillTopic instead, as the online message is published to the last will topic.
+     */
+    virtual std::string GetOnlineTopic() const { return GetLastWillTopic(); }
+
+    /*!
      * Get the payload for the online message.  This will be automatically published to the Last Will topic when
      * connected and periodically.
      */

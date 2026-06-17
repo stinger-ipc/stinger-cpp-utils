@@ -68,8 +68,6 @@ public:
 
     virtual std::string GetOfflinePayload() const;
 
-    std::string GetOnlineTopic() const { return GetLastWillTopic(); }
-
     /*! Returns whether the client is currently connected to the broker.
      * \return true if connected.
      */
