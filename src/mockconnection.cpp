@@ -134,9 +134,11 @@ void MockConnection::SimulateIncomingMessage(const stinger::mqtt::Message& msg) 
     // Find matching subscriptions and trigger callbacks
     for (const auto& [topic, sub] : _subscriptions) {
         if (TopicMatchesSubscription(msg.topic, sub.topic)) {
+            stinger::mqtt::Message callbackMsg = msg;
+            callbackMsg.properties.subscriptionId = sub.subscriptionId;
             // Trigger all callbacks
             for (const auto& [handle, callback] : _callbacks) {
-                callback(msg);
+                callback(callbackMsg);
             }
             break;
         }

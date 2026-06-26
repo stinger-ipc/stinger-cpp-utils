@@ -33,6 +33,15 @@ TEST_F(MockConnectionTest, Subscribe) {
     EXPECT_EQ(mock->GetSubscriptionQos("sensor/temperature"), 1);
 }
 
+TEST_F(MockConnectionTest, SubscriptionIds) {
+    int subId1 = mock->Subscribe("sensor/temperature", 1);
+    int subId2 = mock->Subscribe("sensor/humidity", 1);
+
+    EXPECT_GT(subId1, 0);
+    EXPECT_GT(subId2, 0);
+    EXPECT_NE(subId1, subId2);
+}
+
 TEST_F(MockConnectionTest, Unsubscribe) {
     mock->Subscribe("sensor/temperature", 1);
     EXPECT_TRUE(mock->IsSubscribed("sensor/temperature"));
@@ -50,7 +59,7 @@ TEST_F(MockConnectionTest, MessageCallback) {
         receivedMsg = msg;
     });
 
-    mock->Subscribe("test/topic", 1);
+    int subId = mock->Subscribe("test/topic", 1);
 
     auto msg = mqtt::Message::Signal("test/topic", "hello");
     mock->SimulateIncomingMessage(msg);
@@ -58,6 +67,8 @@ TEST_F(MockConnectionTest, MessageCallback) {
     EXPECT_TRUE(callbackCalled);
     EXPECT_EQ(receivedMsg.topic, "test/topic");
     EXPECT_EQ(receivedMsg.payload, "hello");
+    ASSERT_TRUE(receivedMsg.properties.subscriptionId.has_value());
+    EXPECT_EQ(receivedMsg.properties.subscriptionId.value(), subId);
 }
 
 TEST_F(MockConnectionTest, WildcardSubscription) {
