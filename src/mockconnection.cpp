@@ -129,19 +129,33 @@ void MockConnection::Log(int level, const char* fmt, ...) const {
 // Testing utility methods
 
 void MockConnection::SimulateIncomingMessage(const stinger::mqtt::Message& msg) {
-    std::lock_guard<std::mutex> lock(_mutex);
-
-    // Find matching subscriptions and trigger callbacks
-    for (const auto& [topic, sub] : _subscriptions) {
-        if (TopicMatchesSubscription(msg.topic, sub.topic)) {
-            stinger::mqtt::Message callbackMsg = msg;
-            callbackMsg.properties.subscriptionId = sub.subscriptionId;
-            // Trigger all callbacks
-            for (const auto& [handle, callback] : _callbacks) {
-                callback(callbackMsg);
+    // Collect the message to deliver and the callbacks to invoke while holding the
+    // lock, then release it before invoking them.  Callbacks commonly call back into
+    // the connection (e.g. a server handler publishing a response), and holding the
+    // (non-recursive) mutex during the callback would deadlock.
+    bool matched = false;
+    stinger::mqtt::Message callbackMsg = msg;
+    std::vector<std::function<void(const stinger::mqtt::Message&)>> callbacks;
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
+        for (const auto& [topic, sub] : _subscriptions) {
+            if (TopicMatchesSubscription(msg.topic, sub.topic)) {
+                callbackMsg.properties.subscriptionId = sub.subscriptionId;
+                for (const auto& [handle, callback] : _callbacks) {
+                    callbacks.push_back(callback);
+                }
+                matched = true;
+                break;
             }
-            break;
         }
+    }
+
+    if (!matched) {
+        return;
+    }
+
+    for (const auto& callback : callbacks) {
+        callback(callbackMsg);
     }
 }
 
