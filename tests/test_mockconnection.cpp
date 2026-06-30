@@ -1,4 +1,5 @@
 #include "stinger/mqtt/message.hpp"
+#include "stinger/utils/conversions.hpp"
 #include "stinger/utils/mockconnection.hpp"
 #include <gtest/gtest.h>
 
@@ -22,7 +23,7 @@ TEST_F(MockConnectionTest, PublishMessage) {
     auto published = mock->GetPublishedMessages();
     ASSERT_EQ(published.size(), 1);
     EXPECT_EQ(published[0].topic, "test/topic");
-    EXPECT_EQ(published[0].payload, "test payload");
+    EXPECT_EQ(utils::toString(published[0].payload), "test payload");
 }
 
 TEST_F(MockConnectionTest, Subscribe) {
@@ -66,7 +67,7 @@ TEST_F(MockConnectionTest, MessageCallback) {
 
     EXPECT_TRUE(callbackCalled);
     EXPECT_EQ(receivedMsg.topic, "test/topic");
-    EXPECT_EQ(receivedMsg.payload, "hello");
+    EXPECT_EQ(utils::toString(receivedMsg.payload), "hello");
     ASSERT_TRUE(receivedMsg.properties.subscriptionId.has_value());
     EXPECT_EQ(receivedMsg.properties.subscriptionId.value(), subId);
 }
@@ -91,8 +92,8 @@ TEST_F(MockConnectionTest, GetPublishedMessagesByTopic) {
 
     auto topic1Messages = mock->GetPublishedMessages("topic1");
     ASSERT_EQ(topic1Messages.size(), 2);
-    EXPECT_EQ(topic1Messages[0].payload, "msg1");
-    EXPECT_EQ(topic1Messages[1].payload, "msg3");
+    EXPECT_EQ(utils::toString(topic1Messages[0].payload), "msg1");
+    EXPECT_EQ(utils::toString(topic1Messages[1].payload), "msg3");
 }
 
 TEST_F(MockConnectionTest, ClearPublishedMessages) {

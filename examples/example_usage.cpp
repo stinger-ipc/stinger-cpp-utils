@@ -1,5 +1,6 @@
 #include "stinger/mqtt/brokerconnection.hpp"
 #include "stinger/mqtt/message.hpp"
+#include "stinger/utils/conversions.hpp"
 #include <chrono>
 #include <iostream>
 #include <memory>
@@ -20,7 +21,7 @@ int main() {
     // Add a message callback to handle received messages
     auto callbackHandle = mqtt->AddMessageCallback([](const mqtt::Message& msg) {
         std::cout << "Received message on topic: " << msg.topic << std::endl;
-        std::cout << "Payload: " << msg.payload << std::endl;
+        std::cout << "Payload: " << utils::toString(msg.payload) << std::endl;
 
         // Check if there's correlation data
         if (msg.properties.correlationData) {

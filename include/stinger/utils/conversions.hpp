@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chrono>
+#include <cstddef>
 #include <string>
 #include <vector>
 
@@ -22,6 +23,12 @@ std::string base64Encode(const std::vector<unsigned char>& data);
 
 // Decode a base64 encoded string into a vector of bytes
 std::vector<unsigned char> base64Decode(const std::string& b64input);
+
+// Convert a string into a binary payload.
+std::vector<std::byte> toBytes(const std::string& str);
+
+// Convert a binary payload into a string.
+std::string toString(const std::vector<std::byte>& bytes);
 
 } // namespace utils
 } // namespace stinger

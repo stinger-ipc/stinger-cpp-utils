@@ -1,4 +1,5 @@
 #include "stinger/mqtt/brokerconnection.hpp"
+#include "stinger/utils/conversions.hpp"
 #include <algorithm>
 #include <cctype>
 #include <chrono>
@@ -104,7 +105,7 @@ BrokerConnection::BrokerConnection(const std::string& host, int port, const std:
                                                    msg.properties.version->c_str());
             }
             int mid;
-            mosquitto_publish_v5(mosq, &mid, msg.topic.c_str(), msg.payload.size(), msg.payload.c_str(), msg.qos,
+            mosquitto_publish_v5(mosq, &mid, msg.topic.c_str(), msg.payload.size(), msg.payload.data(), msg.qos,
                                  msg.retain, propList);
             mosquitto_property_free_all(&propList);
             thisClient->_sendMessages[mid] = pending.pSentPromise;
@@ -339,7 +340,7 @@ std::future<bool> BrokerConnection::Publish(const Message& message) {
         mosquitto_property_add_string_pair(&propList, MQTT_PROP_USER_PROPERTY, "Version",
                                            message.properties.version->c_str());
     }
-    int rc = mosquitto_publish_v5(_mosq, &mid, message.topic.c_str(), message.payload.size(), message.payload.c_str(),
+    int rc = mosquitto_publish_v5(_mosq, &mid, message.topic.c_str(), message.payload.size(), message.payload.data(),
                                   message.qos, message.retain, propList);
     if (propList) {
         mosquitto_property_free_all(&propList);
@@ -352,7 +353,7 @@ std::future<bool> BrokerConnection::Publish(const Message& message) {
         _msgQueue.push(pending);
         return future;
     } else if (rc == MOSQ_ERR_SUCCESS) {
-        Log(LOG_INFO, "Published to: %s | %s", message.topic.c_str(), message.payload.c_str());
+        Log(LOG_INFO, "Published to: %s | %s", message.topic.c_str(), utils::toString(message.payload).c_str());
         auto pPromise = std::make_shared<std::promise<bool>>();
         auto future = pPromise->get_future();
         std::lock_guard<std::mutex> lock(_mutex);

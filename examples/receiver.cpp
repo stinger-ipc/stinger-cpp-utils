@@ -1,5 +1,6 @@
 #include "stinger/mqtt/brokerconnection.hpp"
 #include "stinger/mqtt/message.hpp"
+#include "stinger/utils/conversions.hpp"
 #include <chrono>
 #include <iostream>
 #include <memory>
@@ -30,7 +31,7 @@ int main(int argc, char* argv[]) {
     auto callbackHandle = mqtt->AddMessageCallback([](const mqtt::Message& msg) {
         std::cout << "\n========== Message Received ==========" << std::endl;
         std::cout << "Topic: " << msg.topic << std::endl;
-        std::cout << "Payload: " << msg.payload << std::endl;
+        std::cout << "Payload: " << utils::toString(msg.payload) << std::endl;
         std::cout << "QoS: " << msg.qos << std::endl;
         std::cout << "Retain: " << (msg.retain ? "true" : "false") << std::endl;
 

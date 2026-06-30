@@ -1,5 +1,6 @@
 #include <stinger/utils/conversions.hpp>
 
+#include <algorithm>
 #include <cctype>
 #include <ctime>
 #include <iomanip>
@@ -157,6 +158,18 @@ std::vector<unsigned char> base64Decode(const std::string& encoded_string) {
     }
 
     return ret;
+}
+
+std::vector<std::byte> toBytes(const std::string& str) {
+    std::vector<std::byte> bytes(str.size());
+    std::transform(str.begin(), str.end(), bytes.begin(), [](char c) { return static_cast<std::byte>(c); });
+    return bytes;
+}
+
+std::string toString(const std::vector<std::byte>& bytes) {
+    std::string str(bytes.size(), '\0');
+    std::transform(bytes.begin(), bytes.end(), str.begin(), [](std::byte b) { return static_cast<char>(b); });
+    return str;
 }
 
 } // namespace utils

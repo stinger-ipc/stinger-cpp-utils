@@ -1,5 +1,6 @@
 #include "stinger/mqtt/message.hpp"
 #include "stinger/mqtt/properties.hpp"
+#include "stinger/utils/conversions.hpp"
 #include <cstddef>
 #include <gtest/gtest.h>
 #include <vector>
@@ -11,7 +12,7 @@ TEST(MqttMessageTest, DefaultConstructor) {
     mqtt::Message msg("test/topic", "test payload");
 
     EXPECT_EQ(msg.topic, "test/topic");
-    EXPECT_EQ(msg.payload, "test payload");
+    EXPECT_EQ(utils::toString(msg.payload), "test payload");
     EXPECT_EQ(msg.qos, 0);
     EXPECT_FALSE(msg.retain);
 }
@@ -23,7 +24,7 @@ TEST(MqttMessageTest, ConstructorWithAllParameters) {
     mqtt::Message msg("test/topic", "test payload", 2, true, props);
 
     EXPECT_EQ(msg.topic, "test/topic");
-    EXPECT_EQ(msg.payload, "test payload");
+    EXPECT_EQ(utils::toString(msg.payload), "test payload");
     EXPECT_EQ(msg.qos, 2);
     EXPECT_TRUE(msg.retain);
     ASSERT_TRUE(msg.properties.contentType.has_value());
@@ -49,7 +50,7 @@ TEST(MqttMessageTest, SignalFactoryMethod) {
     auto msg = mqtt::Message::Signal("sensors/temp", "22.5");
 
     EXPECT_EQ(msg.topic, "sensors/temp");
-    EXPECT_EQ(msg.payload, "22.5");
+    EXPECT_EQ(utils::toString(msg.payload), "22.5");
     EXPECT_EQ(msg.qos, 2);
     EXPECT_FALSE(msg.retain);
     ASSERT_TRUE(msg.properties.contentType.has_value());
@@ -61,7 +62,7 @@ TEST(MqttMessageTest, PropertyValueFactoryMethod) {
     auto msg = mqtt::Message::PropertyValue("device/status", "online", 5);
 
     EXPECT_EQ(msg.topic, "device/status");
-    EXPECT_EQ(msg.payload, "online");
+    EXPECT_EQ(utils::toString(msg.payload), "online");
     EXPECT_EQ(msg.qos, 1);
     EXPECT_TRUE(msg.retain);
     ASSERT_TRUE(msg.properties.propertyVersion.has_value());
@@ -78,7 +79,7 @@ TEST(MqttMessageTest, PropertyUpdateRequestFactoryMethod) {
     auto msg = mqtt::Message::PropertyUpdateRequest("prop/update", "new_value", 10, correlationData, responseTopic);
 
     EXPECT_EQ(msg.topic, "prop/update");
-    EXPECT_EQ(msg.payload, "new_value");
+    EXPECT_EQ(utils::toString(msg.payload), "new_value");
     EXPECT_EQ(msg.qos, 1);
     EXPECT_FALSE(msg.retain);
 
@@ -103,7 +104,7 @@ TEST(MqttMessageTest, PropertyUpdateResponseFactoryMethod) {
                                                      stinger::error::MethodReturnCode::SUCCESS, "Update completed");
 
     EXPECT_EQ(msg.topic, "prop/response");
-    EXPECT_EQ(msg.payload, "success");
+    EXPECT_EQ(utils::toString(msg.payload), "success");
     EXPECT_EQ(msg.qos, 1);
     EXPECT_FALSE(msg.retain);
 
@@ -129,7 +130,7 @@ TEST(MqttMessageTest, MethodRequestFactoryMethod) {
     auto msg = mqtt::Message::MethodRequest("method/call", "{\"param\":\"value\"}", correlationData, "method/response");
 
     EXPECT_EQ(msg.topic, "method/call");
-    EXPECT_EQ(msg.payload, "{\"param\":\"value\"}");
+    EXPECT_EQ(utils::toString(msg.payload), "{\"param\":\"value\"}");
     EXPECT_EQ(msg.qos, 2);
     EXPECT_FALSE(msg.retain);
 
@@ -150,7 +151,7 @@ TEST(MqttMessageTest, MethodResponseFactoryMethod) {
                                              stinger::error::MethodReturnCode::SUCCESS, "OK");
 
     EXPECT_EQ(msg.topic, "method/response");
-    EXPECT_EQ(msg.payload, "{\"result\":42}");
+    EXPECT_EQ(utils::toString(msg.payload), "{\"result\":42}");
     EXPECT_EQ(msg.qos, 1);
     EXPECT_FALSE(msg.retain);
 
@@ -208,7 +209,7 @@ TEST(MqttMessageTest, EmptyPayload) {
     auto msg = mqtt::Message::Signal("test/topic", "");
 
     EXPECT_EQ(msg.topic, "test/topic");
-    EXPECT_EQ(msg.payload, "");
+    EXPECT_EQ(utils::toString(msg.payload), "");
     ASSERT_TRUE(msg.properties.contentType.has_value());
     EXPECT_EQ(*msg.properties.contentType, "application/json");
 }
