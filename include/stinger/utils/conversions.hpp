@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <cstddef>
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -29,6 +30,14 @@ std::vector<std::byte> toBytes(const std::string& str);
 
 // Convert a binary payload into a string.
 std::string toString(const std::vector<std::byte>& bytes);
+
+// Convert a vector of uint8_t (the representation used for binary interface
+// values) into a std::byte payload suitable for BinaryMessage.
+std::vector<std::byte> toBytes(const std::vector<std::uint8_t>& data);
+
+// Convert a std::byte payload (e.g. a received Message payload) into a vector of
+// uint8_t (the representation used for binary interface values).
+std::vector<std::uint8_t> toUint8Vector(const std::vector<std::byte>& bytes);
 
 } // namespace utils
 } // namespace stinger

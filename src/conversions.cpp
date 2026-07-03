@@ -172,5 +172,17 @@ std::string toString(const std::vector<std::byte>& bytes) {
     return str;
 }
 
+std::vector<std::byte> toBytes(const std::vector<std::uint8_t>& data) {
+    std::vector<std::byte> bytes(data.size());
+    std::transform(data.begin(), data.end(), bytes.begin(), [](std::uint8_t b) { return static_cast<std::byte>(b); });
+    return bytes;
+}
+
+std::vector<std::uint8_t> toUint8Vector(const std::vector<std::byte>& bytes) {
+    std::vector<std::uint8_t> data(bytes.size());
+    std::transform(bytes.begin(), bytes.end(), data.begin(), [](std::byte b) { return static_cast<std::uint8_t>(b); });
+    return data;
+}
+
 } // namespace utils
 } // namespace stinger
