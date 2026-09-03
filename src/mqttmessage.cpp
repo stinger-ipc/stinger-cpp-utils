@@ -16,7 +16,8 @@ Message Message::Signal(const std::string& topic, const std::string& payload) {
     return Message(topic, payload, 2, false, props);
 }
 
-Message Message::PropertyValue(const std::string& topic, const std::string& payload, std::optional<int> propertyVersion) {
+Message Message::PropertyValue(const std::string& topic, const std::string& payload,
+                               std::optional<int> propertyVersion) {
     Properties props;
     props.contentType = "application/json";
     if (propertyVersion.has_value()) {
@@ -25,7 +26,8 @@ Message Message::PropertyValue(const std::string& topic, const std::string& payl
     return Message(topic, payload, 1, true, props);
 }
 
-Message Message::PropertyUpdateRequest(const std::string& topic, const std::string& payload, std::optional<int> propertyVersion,
+Message Message::PropertyUpdateRequest(const std::string& topic, const std::string& payload,
+                                       std::optional<int> propertyVersion,
                                        const std::vector<std::byte>& correlationData,
                                        const std::string& responseTopic) {
     Properties props;
@@ -38,7 +40,8 @@ Message Message::PropertyUpdateRequest(const std::string& topic, const std::stri
     return Message(topic, payload, 1, false, props);
 }
 
-Message Message::PropertyUpdateResponse(const std::string& topic, const std::string& payload, std::optional<int> propertyVersion,
+Message Message::PropertyUpdateResponse(const std::string& topic, const std::string& payload,
+                                        std::optional<int> propertyVersion,
                                         const std::optional<std::vector<std::byte>>& correlationData,
                                         stinger::error::MethodReturnCode returnCode, const std::string& debugMessage) {
     Properties props;
@@ -52,7 +55,8 @@ Message Message::PropertyUpdateResponse(const std::string& topic, const std::str
     return Message(topic, payload, 1, false, props);
 }
 
-Message Message::PropertyUpdateResponse(const std::string& topic, const std::string& payload, std::optional<int> propertyVersion,
+Message Message::PropertyUpdateResponse(const std::string& topic, const std::string& payload,
+                                        std::optional<int> propertyVersion,
                                         const std::optional<std::vector<std::byte>>& correlationData,
                                         stinger::error::MethodReturnCode returnCode) {
     Properties props;
