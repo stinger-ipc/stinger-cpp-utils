@@ -25,17 +25,17 @@ struct Message {
 
     static Message Signal(const std::string& topic, const std::string& payload);
 
-    static Message PropertyValue(const std::string& topic, const std::string& payload, int propertyVersion);
+    static Message PropertyValue(const std::string& topic, const std::string& payload, std::optional<int> propertyVersion);
 
-    static Message PropertyUpdateRequest(const std::string& topic, const std::string& payload, int propertyVersion,
+    static Message PropertyUpdateRequest(const std::string& topic, const std::string& payload, std::optional<int> propertyVersion,
                                          const std::vector<std::byte>& correlationData,
                                          const std::string& responseTopic);
 
-    static Message PropertyUpdateResponse(const std::string& topic, const std::string& payload, int propertyVersion,
+    static Message PropertyUpdateResponse(const std::string& topic, const std::string& payload, std::optional<int> propertyVersion,
                                           const std::optional<std::vector<std::byte>>& correlationData,
                                           stinger::error::MethodReturnCode returnCode, const std::string& debugMessage);
 
-    static Message PropertyUpdateResponse(const std::string& topic, const std::string& payload, int propertyVersion,
+    static Message PropertyUpdateResponse(const std::string& topic, const std::string& payload, std::optional<int> propertyVersion,
                                           const std::optional<std::vector<std::byte>>& correlationData,
                                           stinger::error::MethodReturnCode returnCode);
 
